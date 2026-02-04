@@ -1,8 +1,9 @@
-# Machine Learning Fundamentals: From Perceptron to CNNs
+# _ARTI_ Artificial Intelligence - SLA REACT 2026
+
+Machine Learning Fundamentals: From Perceptron to CNNs
 
 ## Course Overview
 
-**Target Audience:** Engineering students  
 **Total Duration:** 24 hours (12 sessions × 2 hours)  
 **Prerequisites:** Basic Python, linear algebra fundamentals
 
