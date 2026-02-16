@@ -13,7 +13,7 @@
 6. [Vectors with NumPy](#vectors)
 7. [Matrices with NumPy](#matrices)
 8. [Matrix Operations](#operations)
-9. [Putting It All Together](#together)
+9. [Putting It All Together: Data Processing](#together)
 
 ---
 
@@ -838,195 +838,242 @@ Calculate:
 
 ### 📝 Exercise 8.2 (Medium)
 
-**Simulating a Simple Perceptron**
+**Linear Transformations**
 
-A perceptron computes:
-$$
-y = \text{sign}(\mathbf{w}^T \mathbf{x} + b)
-$$
+A common operation in data processing is applying a linear transformation to a set of data points: $\mathbf{Y} = \mathbf{X} \mathbf{W} + \mathbf{b}$, where $\mathbf{X}$ is a data matrix, $\mathbf{W}$ is a weight matrix, and $\mathbf{b}$ is a bias vector.
 
 Given:
-- Weights: $\mathbf{w} = [0.5, -0.3, 0.8]$
-- Bias: $b = 0.2$
-- Input: $\mathbf{x} = [1, 2, 3]$
+$$
+\mathbf{X} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \\ 5 & 6 \end{bmatrix}, \quad
+\mathbf{W} = \begin{bmatrix} 0.5 & -1 & 0.2 \\ 0.3 & 0.7 & -0.5 \end{bmatrix}, \quad
+\mathbf{b} = [0.1, -0.2, 0.3]
+$$
 
-Calculate:
-1. $\mathbf{w}^T \mathbf{x}$ (dot product)
-2. $\mathbf{w}^T \mathbf{x} + b$
-3. $y = \text{sign}(\mathbf{w}^T \mathbf{x} + b)$ (use `np.sign()`)
+1. What are the shapes of $\mathbf{X}$, $\mathbf{W}$, and $\mathbf{b}$?
+2. What will the shape of $\mathbf{Y}$ be?
+3. Compute $\mathbf{Y} = \mathbf{X} \mathbf{W} + \mathbf{b}$ using the `@` operator and broadcasting.
+4. Verify the first row of $\mathbf{Y}$ by computing it manually.
 
-What class does the perceptron predict for this input?
+Hint: Remember that broadcasting will add $\mathbf{b}$ to each row of the result.
 ```python
 # Your solution here
 
 ```
 
-## 9. Putting It All Together <a name="together"></a>
+## 9. Putting It All Together: Data Processing <a name="together"></a>
 
-### Example: Complete Perceptron Forward Pass
+### Example: Normalizing a Dataset
 
-Let's implement a function that computes the perceptron output for multiple inputs at once!
+A common first step in machine learning is **normalizing** data so that each feature has mean 0 and standard deviation 1. This uses nearly every NumPy skill we've covered!
+
+$$
+\mathbf{X}_{\text{norm}} = \frac{\mathbf{X} - \boldsymbol{\mu}}{\boldsymbol{\sigma}}
+$$
+
+where $\boldsymbol{\mu}$ is the mean of each column and $\boldsymbol{\sigma}$ is the standard deviation of each column.
 ```python
-def perceptron_predict(X, w, b):
+# Create a fake dataset: 5 students, 3 features (height in cm, weight in kg, age)
+data = np.array([
+    [165, 60, 20],
+    [180, 85, 25],
+    [155, 50, 22],
+    [170, 70, 30],
+    [175, 75, 28]
+], dtype=float)
+
+print("Original data (5 students × 3 features):")
+print(data)
+print("Shape:", data.shape)
+
+# Compute the mean of each column
+means = np.mean(data, axis=0)  # axis=0 means "along rows" → one value per column
+print("\nMeans (per feature):", means)
+
+# Compute the standard deviation of each column
+stds = np.std(data, axis=0)
+print("Std deviations (per feature):", stds)
+
+# Normalize: broadcasting subtracts/divides each row by the per-column values
+normalized = (data - means) / stds
+
+print("\nNormalized data:")
+print(normalized)
+
+# Verify: each column should now have mean ≈ 0 and std ≈ 1
+print("\nVerification:")
+print("Column means:", np.mean(normalized, axis=0).round(10))
+print("Column stds:", np.std(normalized, axis=0).round(10))
+```
+
+### Example: Pairwise Distance Matrix
+
+Another common operation: computing the **Euclidean distance** between every pair of data points. The result is a square matrix where entry $(i, j)$ gives the distance between point $i$ and point $j$.
+
+$$
+d(\mathbf{x}_i, \mathbf{x}_j) = \|\mathbf{x}_i - \mathbf{x}_j\| = \sqrt{\sum_{k} (x_{ik} - x_{jk})^2}
+$$
+```python
+def pairwise_distances(X):
     """
-    Compute perceptron predictions for multiple inputs.
+    Compute pairwise Euclidean distances between all rows of X.
     
     Parameters:
     -----------
     X : numpy array, shape (n_samples, n_features)
-        Input data
-    w : numpy array, shape (n_features,)
-        Weight vector
-    b : float
-        Bias term
+        Data matrix
     
     Returns:
     --------
-    predictions : numpy array, shape (n_samples,)
-        Predicted classes (+1 or -1)
+    D : numpy array, shape (n_samples, n_samples)
+        Distance matrix where D[i,j] = ||X[i] - X[j]||
     """
-    # Compute weighted sums: X @ w gives a vector of dot products
-    weighted_sums = X @ w + b
+    n = X.shape[0]
+    D = np.zeros((n, n))
     
-    # Apply sign function
-    predictions = np.sign(weighted_sums)
+    for i in range(n):
+        for j in range(n):
+            diff = X[i] - X[j]          # Vector subtraction
+            D[i, j] = np.linalg.norm(diff)  # Euclidean norm
     
-    return predictions
+    return D
 
-# Example: AND gate
-# Inputs: all combinations of 0 and 1
-X = np.array([[0, 0],
-              [0, 1],
-              [1, 0],
-              [1, 1]])
+# Use the normalized data from above
+D = pairwise_distances(normalized)
 
-# Weights and bias for AND gate
-w = np.array([1.0, 1.0])
-b = -1.5
+print("Distance matrix (5×5):")
+print(np.round(D, 2))
 
-# Make predictions
-predictions = perceptron_predict(X, w, b)
-
-print("AND Gate Simulation:")
-print("Inputs:\n", X)
-print("\nWeights:", w)
-print("Bias:", b)
-print("\nPredictions:", predictions)
-
-# Convert to 0/1 for easier reading
-predictions_01 = (predictions + 1) // 2  # -1 -> 0, +1 -> 1
-print("\nTruth table:")
-for i in range(len(X)):
-    print(f"  {X[i][0]} AND {X[i][1]} = {predictions_01[i]}")
+# Properties of the distance matrix
+print("\nDiagonal (distance to self):", np.diag(D))
+print("Is symmetric?", np.allclose(D, D.T))
+print("Closest pair:", np.unravel_index(np.argmin(D + np.eye(5)*999), D.shape))
 ```
 
 ### Understanding the Computation
 
-Let's break down what happened step by step:
+Let's trace through a specific distance calculation step by step:
 ```python
-print("Detailed computation for AND gate:\n")
-print("w =", w)
-print("b =", b)
-print()
+print("Detailed computation: distance between student 0 and student 1\n")
 
-for i, x in enumerate(X):
-    # Compute dot product
-    dot_product = x @ w
-    
-    # Add bias
-    linear_output = dot_product + b
-    
-    # Apply sign
-    prediction = np.sign(linear_output)
-    
-    print(f"Input {i}: x = {x}")
-    print(f"  x · w = {x[0]}*{w[0]} + {x[1]}*{w[1]} = {dot_product}")
-    print(f"  x · w + b = {dot_product} + {b} = {linear_output}")
-    print(f"  sign({linear_output}) = {prediction}")
-    print()
+print("Student 0 (normalized):", normalized[0])
+print("Student 1 (normalized):", normalized[1])
+
+# Step 1: Compute difference vector
+diff = normalized[0] - normalized[1]
+print("\nDifference vector:", diff)
+
+# Step 2: Square each component
+squared = diff ** 2
+print("Squared differences:", squared)
+
+# Step 3: Sum
+total = np.sum(squared)
+print("Sum of squares:", total)
+
+# Step 4: Square root
+distance = np.sqrt(total)
+print("Distance (sqrt):", distance)
+
+# All at once with np.linalg.norm
+print("\nUsing np.linalg.norm:", np.linalg.norm(diff))
 ```
 
 ### 📝 Exercise 9.1 (Hard)
 
-**Build a Complete Perceptron Trainer**
+**Vectorized Distance Matrix**
 
-Implement a function `train_perceptron(X, y, learning_rate, max_epochs)` that:
-1. Initializes weights to zeros
-2. Initializes bias to zero
-3. For each epoch:
-   - For each training example:
-     - Make a prediction
-     - If wrong, update weights and bias
-4. Returns the learned weights and bias
+The `pairwise_distances` function above uses nested loops, which is slow for large datasets. Write a **vectorized** version using broadcasting.
 
-Test it on the OR gate:
-```
-x1  x2  | OR
---------+----
- 0   0  |  0
- 0   1  |  1
- 1   0  |  1
- 1   1  |  1
-```
+Hint: You can reshape `X` to compute all differences at once:
+- `X` has shape `(n, d)`
+- `X[:, np.newaxis, :]` has shape `(n, 1, d)` — each row becomes a "layer"
+- `X[np.newaxis, :, :]` has shape `(1, n, d)` — the whole matrix in one layer
+
+NumPy broadcasting will compute all `(n × n)` difference vectors simultaneously!
+
 ```python
-# Your solution here
-def train_perceptron(X, y, learning_rate=0.1, max_epochs=100):
+def pairwise_distances_vectorized(X):
     """
-    Train a perceptron using the perceptron learning algorithm.
+    Compute pairwise Euclidean distances WITHOUT loops.
     
     Parameters:
     -----------
     X : numpy array, shape (n_samples, n_features)
-        Training data
-    y : numpy array, shape (n_samples,)
-        Target labels (+1 or -1)
-    learning_rate : float
-        Learning rate (eta)
-    max_epochs : int
-        Maximum number of training epochs
+        Data matrix
     
     Returns:
     --------
-    w : numpy array
-        Learned weights
-    b : float
-        Learned bias
+    D : numpy array, shape (n_samples, n_samples)
+        Distance matrix
     """
-    # Initialize weights and bias
-    # ...
-    
-    # Training loop
-    # ...
+    # Your solution here
+    # Hint: use broadcasting to compute all differences at once
+    # Then square, sum along the feature axis, and take the square root
     
     pass
 
-# Test on OR gate
-# ...
+# Test: should give the same result as the loop version
+# D_fast = pairwise_distances_vectorized(normalized)
+# print("Same result?", np.allclose(D, D_fast))
 ```
 
 ### 📝 Exercise 9.2 (Hard)
 
-**Batch Processing**
+**K-Nearest Neighbors Classifier (from scratch)**
 
-Modify your perceptron implementation to process **batches** of data.
+Using what you've built, implement a simple **k-nearest neighbors** (k-NN) classifier. Given a new data point, k-NN finds the $k$ closest training points and predicts the most common label among them.
 
-Instead of:
+Algorithm:
+1. Compute distances from the new point to all training points
+2. Find the $k$ nearest neighbors
+3. Return the most common label among them
+
 ```python
-for each example:
-    prediction = sign(w @ x + b)
-```
+def knn_predict(X_train, y_train, x_new, k=3):
+    """
+    Predict the label of x_new using k-nearest neighbors.
+    
+    Parameters:
+    -----------
+    X_train : numpy array, shape (n_samples, n_features)
+        Training data
+    y_train : numpy array, shape (n_samples,)
+        Training labels
+    x_new : numpy array, shape (n_features,)
+        New data point to classify
+    k : int
+        Number of neighbors
+    
+    Returns:
+    --------
+    prediction : the most common label among the k nearest neighbors
+    """
+    # Step 1: Compute distances from x_new to all training points
+    # Hint: use np.linalg.norm with axis parameter
+    
+    # Step 2: Find the indices of the k smallest distances
+    # Hint: use np.argsort()
+    
+    # Step 3: Get the labels of these k neighbors
+    
+    # Step 4: Return the most common label
+    # Hint: use np.bincount() and np.argmax()
+    
+    pass
 
-Use matrix operations:
-```python
-predictions = sign(X @ w + b)  # All at once!
-```
+# Test data: 2D points with two classes (0 and 1)
+X_train = np.array([
+    [1, 1], [1.5, 2], [2, 1],       # Class 0 (cluster in bottom-left)
+    [5, 5], [6, 5.5], [5.5, 6]      # Class 1 (cluster in top-right)
+])
+y_train = np.array([0, 0, 0, 1, 1, 1])
 
-This is **much faster** for large datasets.
-
-Write a function `batch_perceptron_predict(X, w, b)` and verify it gives the same results as the loop version.
-```python
-# Your solution here
-
+# Classify a new point
+# x_new = np.array([2, 2])   # Should predict class 0
+# print("Prediction for [2, 2]:", knn_predict(X_train, y_train, x_new, k=3))
+# 
+# x_new = np.array([5, 4])   # Should predict class 1
+# print("Prediction for [5, 4]:", knn_predict(X_train, y_train, x_new, k=3))
 ```
 
 ---
@@ -1057,7 +1104,12 @@ Write a function `batch_perceptron_predict(X, w, b)` and verify it gives the sam
 ✅ **Matrix Operations**
 - Matrix multiplication with `@`
 - Matrix-vector multiplication
-- Batch processing
+- Linear transformations with broadcasting
+
+✅ **Data Processing**
+- Dataset normalization (zero mean, unit variance)
+- Pairwise distance computation
+- Vectorization vs loops
 
 ### Key Takeaways
 
@@ -1065,13 +1117,14 @@ Write a function `batch_perceptron_predict(X, w, b)` and verify it gives the sam
 2. **Use `@` for matrix multiplication**, not `*`
 3. **Vectorization** (using arrays instead of loops) is faster
 4. **Shape matters**: Always check array shapes!
+5. **Broadcasting** lets you apply operations across rows and columns efficiently
 
 ### Next Steps
 
 Now you're ready to:
-- Understand the perceptron notebook
-- Implement machine learning algorithms
-- Work with neural networks
+- Understand the perceptron model and how it computes outputs
+- Learn how machines can automatically adjust parameters
+- Start building machine learning algorithms
 
 ---
 
