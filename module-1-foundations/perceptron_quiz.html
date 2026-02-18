@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perceptron Quiz — Neural Networks for Engineers</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Base theme overrides ─────────────────────────────── */
+    :root {
+      --bg:       #0a0e17;
+      --surface:  #111827;
+      --border:   #1e2d45;
+      --accent:   #00d4ff;
+      --accent2:  #ff6b6b;
+      --accent3:  #7cfc8a;
+      --muted:    #4a6080;
+      --text:     #cdd9e5;
+      --mono:     'Space Mono', monospace;
+      --sans:     'DM Sans', sans-serif;
+    }
+
+    .reveal-viewport { background: var(--bg); }
+    .reveal { font-family: var(--sans); color: var(--text); }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section { padding: 0 60px; }
+
+    /* ── Typography ───────────────────────────────────────── */
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: var(--mono);
+      text-transform: none;
+      letter-spacing: -0.5px;
+      color: #fff;
+      margin-bottom: 0.4em;
+    }
+    .reveal h1 { font-size: 1.9em; line-height: 1.15; }
+    .reveal h2 { font-size: 1.35em; color: var(--accent); }
+    .reveal h3 { font-size: 1.05em; color: var(--muted); font-weight: 400; }
+    .reveal p, .reveal li { font-size: 0.85em; line-height: 1.65; }
+    .reveal code {
+      font-family: var(--mono);
+      background: #0d1520;
+      color: var(--accent3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    /* ── Cover slide ──────────────────────────────────────── */
+    .cover {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0 80px !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 50%, rgba(0,212,255,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(124,252,138,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cover-label {
+      font-family: var(--mono);
+      font-size: 0.6em;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+    .cover h1 { font-size: 2.6em; line-height: 1.1; margin-bottom: 0.2em; }
+    .cover .subtitle {
+      font-family: var(--sans);
+      font-size: 0.9em;
+      color: var(--muted);
+      margin-top: 16px;
+    }
+    .cover .meta {
+      margin-top: 48px;
+      display: flex;
+      gap: 32px;
+    }
+    .cover .meta-item {
+      font-family: var(--mono);
+      font-size: 0.6em;
+      color: var(--muted);
+      border-left: 2px solid var(--border);
+      padding-left: 12px;
+    }
+    .cover .meta-item span {
+      display: block;
+      color: var(--accent);
+      font-size: 1.4em;
+      margin-bottom: 2px;
+    }
+
+    /* ── Section header slides ────────────────────────────── */
+    .section-header {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0 80px !important;
+    }
+    .section-header .section-num {
+      font-family: var(--mono);
+      font-size: 5em;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: -12px;
+    }
+    .section-header h2 {
+      font-size: 2em;
+      color: #fff;
+    }
+    .section-header p {
+      color: var(--muted);
+      font-size: 0.85em;
+      margin-top: 8px;
+    }
+
+    /* ── Question slides ──────────────────────────────────── */
+    .question-slide {
+      padding: 40px 60px !important;
+    }
+    .q-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    .q-number {
+      font-family: var(--mono);
+      font-size: 0.65em;
+      color: var(--accent);
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      padding: 3px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .q-tag {
+      font-family: var(--mono);
+      font-size: 0.55em;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+    .q-text {
+      font-size: 0.95em;
+      color: #e8f0fa;
+      line-height: 1.55;
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+    .q-text strong { color: #fff; font-weight: 600; }
+
+    /* Math display in questions */
+    .q-formula {
+      font-family: var(--mono);
+      background: #0d1520;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 14px 20px;
+      border-radius: 6px;
+      margin: 16px 0 24px;
+      font-size: 0.9em;
+      color: var(--accent3);
+      display: inline-block;
+    }
+
+    /* ── Answer options ───────────────────────────────────── */
+    .options { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .options.grid-2 { grid-template-columns: 1fr 1fr; }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .option::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,212,255,0.04), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .option:hover { border-color: var(--accent); }
+    .option:hover::before { opacity: 1; }
+    .option-letter {
+      font-family: var(--mono);
+      font-size: 0.75em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.2s;
+    }
+    .option-text {
+      font-size: 0.78em;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .option-text code { font-size: 0.9em; }
+
+    /* Revealed states */
+    .option.correct {
+      border-color: var(--accent3);
+      background: rgba(124,252,138,0.07);
+    }
+    .option.correct .option-letter {
+      background: var(--accent3);
+      border-color: var(--accent3);
+      color: #0a0e17;
+      font-weight: 700;
+    }
+    .option.wrong {
+      border-color: var(--accent2);
+      background: rgba(255,107,107,0.07);
+      opacity: 0.6;
+    }
+    .option.wrong .option-letter {
+      background: rgba(255,107,107,0.2);
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    /* ── Answer reveal button ─────────────────────────────── */
+    .reveal-btn {
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 0.65em;
+      color: var(--muted);
+      background: transparent;
+      border: 1px dashed var(--border);
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Answer explanation ───────────────────────────────── */
+    .answer-box {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px;
+    }
+    .answer-box.visible { display: block; }
+    .answer-box .answer-label {
+      font-family: var(--mono);
+      font-size: 0.6em;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .answer-box p {
+      font-size: 0.75em;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.6;
+    }
+    .answer-box .correct-letter {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--accent3);
+    }
+
+    /* ── Score slide ──────────────────────────────────────── */
+    .score-slide {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0 80px !important;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 32px 0;
+    }
+    .score-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      text-align: center;
+    }
+    .score-card .range {
+      font-family: var(--mono);
+      font-size: 1.3em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .score-card .label {
+      font-size: 0.7em;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .score-card.gold .range { color: #ffd700; }
+    .score-card.silver .range { color: #c0c0c0; }
+    .score-card.bronze .range { color: #cd7f32; }
+    .score-card.retry .range { color: var(--accent2); }
+
+    /* ── Progress bar ─────────────────────────────────────── */
+    .reveal .progress { background: var(--border); }
+    .reveal .progress span { background: var(--accent); }
+
+    /* ── Slide number ─────────────────────────────────────── */
+    .reveal .slide-number {
+      font-family: var(--mono);
+      font-size: 0.55em;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    /* ── Difficulty badge ─────────────────────────────────── */
+    .diff {
+      font-family: var(--mono);
+      font-size: 0.55em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+    }
+    .diff.easy   { background: rgba(124,252,138,0.12); color: var(--accent3); border: 1px solid rgba(124,252,138,0.25); }
+    .diff.medium { background: rgba(0,212,255,0.12);   color: var(--accent);  border: 1px solid rgba(0,212,255,0.25); }
+    .diff.hard   { background: rgba(255,107,107,0.12); color: var(--accent2); border: 1px solid rgba(255,107,107,0.25); }
+
+    /* ── Horizontal rule style ────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin: 16px 0;
+      opacity: 0.3;
+    }
+
+    /* ── Fade fragments ───────────────────────────────────── */
+    .reveal .fragment { opacity: 0; transition: opacity 0.4s ease; }
+    .reveal .fragment.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- ══════════════════════ COVER ══════════════════════ -->
+  <section class="cover">
+    <div class="cover-label">Neural Networks for Engineers</div>
+    <h1>Perceptron<br/>Quiz</h1>
+    <p class="subtitle">Test your understanding of the fundamental building block<br/>of neural networks.</p>
+    <div class="meta">
+      <div class="meta-item"><span>15</span>Questions</div>
+      <div class="meta-item"><span>4</span>Topics</div>
+      <div class="meta-item"><span>3</span>Difficulty levels</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SECTION 1 HEADER ══════════════════ -->
+  <section class="section-header">
+    <div class="section-num">01</div>
+    <h2>Core Concepts</h2>
+    <p>Bias, activation functions, vectorized computation — Questions 1 to 4</p>
+  </section>
+
+  <!-- Q1 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 01 / 15</span>
+      <span class="q-tag">Core Concepts</span>
+      <span class="diff easy">EASY</span>
+    </div>
+    <p class="q-text">What does the bias <strong>b</strong> do in the perceptron formula?</p>
+    <div class="q-formula">z = w₁·x₁ + w₂·x₂ + b</div>
+    <ul class="options" id="q1-opts">
+      <li class="option" onclick="select(this,'q1','A')"><span class="option-letter">A</span><span class="option-text">It scales the output between 0 and 1</span></li>
+      <li class="option" onclick="select(this,'q1','B')"><span class="option-letter">B</span><span class="option-text">It shifts the decision boundary without changing its orientation</span></li>
+      <li class="option" onclick="select(this,'q1','C')"><span class="option-letter">C</span><span class="option-text">It controls the learning rate</span></li>
+      <li class="option" onclick="select(this,'q1','D')"><span class="option-letter">D</span><span class="option-text">It normalizes the input features</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q1','B','Changing b translates the boundary parallel to itself — the weights, which control orientation, are untouched.')">▶ Show answer</button>
+    <div class="answer-box" id="q1-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — Changing b translates the decision boundary parallel to itself. The weights w₁ and w₂ control the orientation (slope) of the boundary and are untouched by b.</p>
+    </div>
+  </section>
+
+  <!-- Q2 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 02 / 15</span>
+      <span class="q-tag">Core Concepts</span>
+      <span class="diff easy">EASY</span>
+    </div>
+    <p class="q-text">A perceptron uses w₁ = 1, w₂ = 1, b = −1.5. What is the output for input <strong>(x₁, x₂) = (1, 1)</strong>?</p>
+    <ul class="options grid-2" id="q2-opts">
+      <li class="option" onclick="select(this,'q2','A')"><span class="option-letter">A</span><span class="option-text">z = −0.5 → output 0</span></li>
+      <li class="option" onclick="select(this,'q2','B')"><span class="option-letter">B</span><span class="option-text">z = +0.5 → output 1</span></li>
+      <li class="option" onclick="select(this,'q2','C')"><span class="option-letter">C</span><span class="option-text">z = 0 → output 0</span></li>
+      <li class="option" onclick="select(this,'q2','D')"><span class="option-letter">D</span><span class="option-text">z = +1.5 → output 1</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q2','B','z = 1×1 + 1×1 − 1.5 = +0.5 ≥ 0 → output 1.')">▶ Show answer</button>
+    <div class="answer-box" id="q2-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — z = 1×1 + 1×1 − 1.5 = <strong>+0.5</strong>. Since z ≥ 0, output = 1. This is the AND gate: both inputs are 1, so the perceptron fires.</p>
+    </div>
+  </section>
+
+  <!-- Q3 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 03 / 15</span>
+      <span class="q-tag">Core Concepts</span>
+      <span class="diff easy">EASY</span>
+    </div>
+    <p class="q-text">Which activation function outputs values in the range <strong>(0, 1)</strong>, is smooth, and is differentiable everywhere?</p>
+    <ul class="options grid-2" id="q3-opts">
+      <li class="option" onclick="select(this,'q3','A')"><span class="option-letter">A</span><span class="option-text">Step function</span></li>
+      <li class="option" onclick="select(this,'q3','B')"><span class="option-letter">B</span><span class="option-text">Sign function</span></li>
+      <li class="option" onclick="select(this,'q3','C')"><span class="option-letter">C</span><span class="option-text">ReLU</span></li>
+      <li class="option" onclick="select(this,'q3','D')"><span class="option-letter">D</span><span class="option-text">Sigmoid</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q3','D','σ(x) = 1/(1+e^−x) maps ℝ → (0,1) and is C∞.')">▶ Show answer</button>
+    <div class="answer-box" id="q3-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">D</span> — The sigmoid σ(x) = 1/(1+e<sup>−x</sup>) maps all real numbers to (0,1) and is infinitely differentiable. This makes it essential for backpropagation. ReLU is not differentiable at 0; step and sign are discontinuous.</p>
+    </div>
+  </section>
+
+  <!-- Q4 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 04 / 15</span>
+      <span class="q-tag">Core Concepts</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">In vectorized notation, how do you compute predictions for <strong>N examples at once</strong>, where X is the N×2 input matrix?</p>
+    <ul class="options" id="q4-opts">
+      <li class="option" onclick="select(this,'q4','A')"><span class="option-letter">A</span><span class="option-text"><code>z = w * X + b</code> (element-wise multiplication)</span></li>
+      <li class="option" onclick="select(this,'q4','B')"><span class="option-letter">B</span><span class="option-text"><code>z = X @ w + b</code> (matrix-vector product)</span></li>
+      <li class="option" onclick="select(this,'q4','C')"><span class="option-letter">C</span><span class="option-text"><code>z = sum(w) + b</code></span></li>
+      <li class="option" onclick="select(this,'q4','D')"><span class="option-letter">D</span><span class="option-text"><code>z = X * w.T + b</code></span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q4','B','X @ w computes a dot product for each row of X simultaneously.')">▶ Show answer</button>
+    <div class="answer-box" id="q4-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — <code>X @ w + b</code> performs a matrix-vector product: each row of X (one example) is dotted with w, then b is broadcast-added. Result: a vector of N scores. This is the core of efficient batch computation in NumPy.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SECTION 2 HEADER ══════════════════ -->
+  <section class="section-header">
+    <div class="section-num">02</div>
+    <h2>Logic Gates</h2>
+    <p>NOT, AND, OR, NAND, XOR — Questions 5 to 8</p>
+  </section>
+
+  <!-- Q5 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 05 / 15</span>
+      <span class="q-tag">Logic Gates</span>
+      <span class="diff easy">EASY</span>
+    </div>
+    <p class="q-text">A perceptron with w₁ = 1, w₂ = 1, b = −0.5 receives input <strong>(0, 0)</strong>. What is z and what is the output?</p>
+    <ul class="options grid-2" id="q5-opts">
+      <li class="option" onclick="select(this,'q5','A')"><span class="option-letter">A</span><span class="option-text">z = −0.5, output = 0</span></li>
+      <li class="option" onclick="select(this,'q5','B')"><span class="option-letter">B</span><span class="option-text">z = +0.5, output = 1</span></li>
+      <li class="option" onclick="select(this,'q5','C')"><span class="option-letter">C</span><span class="option-text">z = 0, output = 1</span></li>
+      <li class="option" onclick="select(this,'q5','D')"><span class="option-letter">D</span><span class="option-text">z = −1.5, output = 0</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q5','A','z = 0 + 0 − 0.5 = −0.5 < 0 → output 0.')">▶ Show answer</button>
+    <div class="answer-box" id="q5-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">A</span> — z = 1×0 + 1×0 − 0.5 = <strong>−0.5</strong>. Since z < 0, output = 0. This is the OR gate: when both inputs are 0, output should be 0. ✓</p>
+    </div>
+  </section>
+
+  <!-- Q6 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 06 / 15</span>
+      <span class="q-tag">Logic Gates</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">You want to implement a <strong>NOT gate</strong> with a single-input perceptron. Which set of parameters is correct?</p>
+    <ul class="options grid-2" id="q6-opts">
+      <li class="option" onclick="select(this,'q6','A')"><span class="option-letter">A</span><span class="option-text">w₁ = 1, b = −0.5</span></li>
+      <li class="option" onclick="select(this,'q6','B')"><span class="option-letter">B</span><span class="option-text">w₁ = −1, b = 0.5</span></li>
+      <li class="option" onclick="select(this,'q6','C')"><span class="option-letter">C</span><span class="option-text">w₁ = 0, b = 1</span></li>
+      <li class="option" onclick="select(this,'q6','D')"><span class="option-letter">D</span><span class="option-text">w₁ = 1, b = 0.5</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q6','B','Negative w₁ inverts: NOT(0)= 0+0.5=+0.5→1 ✓  NOT(1)= −1+0.5=−0.5→0 ✓')">▶ Show answer</button>
+    <div class="answer-box" id="q6-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — The negative weight w₁ = −1 inverts the input's effect. Check: NOT(0) = −1×0 + 0.5 = +0.5 ≥ 0 → 1 ✓ ; NOT(1) = −1×1 + 0.5 = −0.5 &lt; 0 → 0 ✓.</p>
+    </div>
+  </section>
+
+  <!-- Q7 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 07 / 15</span>
+      <span class="q-tag">Logic Gates</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">The AND gate uses w₁ = 1, w₂ = 1, b = −1.5. How do you derive the <strong>NAND gate</strong> from it?</p>
+    <ul class="options" id="q7-opts">
+      <li class="option" onclick="select(this,'q7','A')"><span class="option-letter">A</span><span class="option-text">Add 1 to the bias</span></li>
+      <li class="option" onclick="select(this,'q7','B')"><span class="option-letter">B</span><span class="option-text">Swap the two weights</span></li>
+      <li class="option" onclick="select(this,'q7','C')"><span class="option-letter">C</span><span class="option-text">Multiply all parameters (w₁, w₂, b) by −1</span></li>
+      <li class="option" onclick="select(this,'q7','D')"><span class="option-letter">D</span><span class="option-text">Replace the step function with the sign function</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q7','C','Negating all params flips z_NAND = −z_AND, inverting every decision.')">▶ Show answer</button>
+    <div class="answer-box" id="q7-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">C</span> — NAND = NOT AND. Multiplying all parameters by −1 gives w₁=−1, w₂=−1, b=+1.5. Now z<sub>NAND</sub> = −z<sub>AND</sub>, so every AND output is flipped. This is a general principle: NOT(f) uses parameters (−w, −b).</p>
+    </div>
+  </section>
+
+  <!-- Q8 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 08 / 15</span>
+      <span class="q-tag">Logic Gates</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">Which logic gate <strong>cannot</strong> be implemented by a single perceptron, regardless of the weight values chosen?</p>
+    <ul class="options grid-2" id="q8-opts">
+      <li class="option" onclick="select(this,'q8','A')"><span class="option-letter">A</span><span class="option-text">OR</span></li>
+      <li class="option" onclick="select(this,'q8','B')"><span class="option-letter">B</span><span class="option-text">AND</span></li>
+      <li class="option" onclick="select(this,'q8','C')"><span class="option-letter">C</span><span class="option-text">XOR</span></li>
+      <li class="option" onclick="select(this,'q8','D')"><span class="option-letter">D</span><span class="option-text">NAND</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q8','C','XOR is not linearly separable — no single straight line can separate its two classes.')">▶ Show answer</button>
+    <div class="answer-box" id="q8-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">C</span> — XOR is the classic example of a non-linearly separable function. Class 1 contains (0,0) and (1,1) on one diagonal; Class 0 contains (0,1) and (1,0) on the other. No straight line can separate them.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SECTION 3 HEADER ══════════════════ -->
+  <section class="section-header">
+    <div class="section-num">03</div>
+    <h2>Geometry</h2>
+    <p>Decision boundaries, slopes, linear separability — Questions 9 to 12</p>
+  </section>
+
+  <!-- Q9 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 09 / 15</span>
+      <span class="q-tag">Geometry</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">A perceptron has w₁ = 2, w₂ = −1, b = 0. Written as <strong>x₂ = f(x₁)</strong>, what is the slope of the decision boundary?</p>
+    <ul class="options grid-2" id="q9-opts">
+      <li class="option" onclick="select(this,'q9','A')"><span class="option-letter">A</span><span class="option-text">−2</span></li>
+      <li class="option" onclick="select(this,'q9','B')"><span class="option-letter">B</span><span class="option-text">+2</span></li>
+      <li class="option" onclick="select(this,'q9','C')"><span class="option-letter">C</span><span class="option-text">−1/2</span></li>
+      <li class="option" onclick="select(this,'q9','D')"><span class="option-letter">D</span><span class="option-text">+1/2</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q9','B','x₂ = −(w₁/w₂)·x₁ − b/w₂ = −(2/−1)·x₁ = +2·x₁')">▶ Show answer</button>
+    <div class="answer-box" id="q9-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — From 2x₁ − x₂ = 0, isolate x₂: x₂ = −(w₁/w₂)·x₁ = −(2/−1)·x₁ = <strong>+2·x₁</strong>. Slope = +2. The negative w₂ flips the sign of the division, making the slope positive.</p>
+    </div>
+  </section>
+
+  <!-- Q10 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 10 / 15</span>
+      <span class="q-tag">Geometry</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">In a 2D perceptron, what happens to the decision boundary when you <strong>increase b</strong>?</p>
+    <ul class="options" id="q10-opts">
+      <li class="option" onclick="select(this,'q10','A')"><span class="option-letter">A</span><span class="option-text">The boundary rotates clockwise</span></li>
+      <li class="option" onclick="select(this,'q10','B')"><span class="option-letter">B</span><span class="option-text">The boundary shifts parallel to itself (translation)</span></li>
+      <li class="option" onclick="select(this,'q10','C')"><span class="option-letter">C</span><span class="option-text">The boundary becomes curved</span></li>
+      <li class="option" onclick="select(this,'q10','D')"><span class="option-letter">D</span><span class="option-text">The weights are rescaled proportionally</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q10','B','The slope −w₁/w₂ is unaffected by b. Only the intercept −b/w₂ changes.')">▶ Show answer</button>
+    <div class="answer-box" id="q10-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — In x₂ = −(w₁/w₂)x₁ − b/w₂, changing b only affects the intercept −b/w₂. The slope −w₁/w₂ is determined solely by the weights. Increasing b shifts the line up/down (parallel translation).</p>
+    </div>
+  </section>
+
+  <!-- Q11 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 11 / 15</span>
+      <span class="q-tag">Geometry</span>
+      <span class="diff hard">HARD</span>
+    </div>
+    <p class="q-text">Points (0,0) and (1,1) are <strong>Class 1</strong>; (0,1) and (1,0) are <strong>Class 0</strong> (XOR). Which argument proves no perceptron can solve this?</p>
+    <ul class="options" id="q11-opts">
+      <li class="option" onclick="select(this,'q11','A')"><span class="option-letter">A</span><span class="option-text">The points are too far apart for any line to reach both classes</span></li>
+      <li class="option" onclick="select(this,'q11','B')"><span class="option-letter">B</span><span class="option-text">The two classes are not convexly separable — their diagonals share the same midpoint (0.5, 0.5)</span></li>
+      <li class="option" onclick="select(this,'q11','C')"><span class="option-letter">C</span><span class="option-text">There are too many points for a 2-weight perceptron to handle</span></li>
+      <li class="option" onclick="select(this,'q11','D')"><span class="option-letter">D</span><span class="option-text">The bias would need to take an imaginary value</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q11','B','Both classes have centroid (0.5,0.5); no halfplane can separate them.')">▶ Show answer</button>
+    <div class="answer-box" id="q11-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — The centroid of Class 1 is (0.5, 0.5) and so is the centroid of Class 0. Any separating halfspace would need to put one side above (0.5,0.5) and the other below — but both centroids coincide. This is a formal proof of non-linear separability.</p>
+    </div>
+  </section>
+
+  <!-- Q12 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 12 / 15</span>
+      <span class="q-tag">Geometry</span>
+      <span class="diff medium">MEDIUM</span>
+    </div>
+    <p class="q-text">The decision boundary is <strong>4x₁ + 2x₂ − 8 = 0</strong>. Which point lies <em>exactly</em> on the boundary?</p>
+    <ul class="options grid-2" id="q12-opts">
+      <li class="option" onclick="select(this,'q12','A')"><span class="option-letter">A</span><span class="option-text">(1, 2)</span></li>
+      <li class="option" onclick="select(this,'q12','B')"><span class="option-letter">B</span><span class="option-text">(2, 0)</span></li>
+      <li class="option" onclick="select(this,'q12','C')"><span class="option-letter">C</span><span class="option-text">(0, 4)</span></li>
+      <li class="option" onclick="select(this,'q12','D')"><span class="option-letter">D</span><span class="option-text">(1, 1)</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q12','B','(2,0): 4×2 + 2×0 − 8 = 0 ✓  Also (0,4): 4×0 + 2×4 − 8 = 0 ✓')">▶ Show answer</button>
+    <div class="answer-box" id="q12-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> (and C) — Check (2,0): 4×2 + 2×0 − 8 = 8 − 8 = <strong>0</strong> ✓. Check (0,4): 4×0 + 2×4 − 8 = 8 − 8 = <strong>0</strong> ✓. Both B and C lie on the boundary. Check (1,2): 4+4−8=0 ✓ too! Points on the boundary have z = 0 → assigned to Class 1 by convention.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SECTION 4 HEADER ══════════════════ -->
+  <section class="section-header">
+    <div class="section-num">04</div>
+    <h2>Analysis &amp; Reasoning</h2>
+    <p>Applied problems and theoretical understanding — Questions 13 to 15</p>
+  </section>
+
+  <!-- Q13 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 13 / 15</span>
+      <span class="q-tag">Analysis</span>
+      <span class="diff hard">HARD</span>
+    </div>
+    <p class="q-text">A student classifier uses w₁ = 2.0, w₂ = 0.5, b = −60. A student studied <strong>8 hours</strong> and has a previous score of <strong>70</strong>. Predict Pass or Fail.</p>
+    <ul class="options grid-2" id="q13-opts">
+      <li class="option" onclick="select(this,'q13','A')"><span class="option-letter">A</span><span class="option-text">z = −9.0 → Fail</span></li>
+      <li class="option" onclick="select(this,'q13','B')"><span class="option-letter">B</span><span class="option-text">z = +9.0 → Pass</span></li>
+      <li class="option" onclick="select(this,'q13','C')"><span class="option-letter">C</span><span class="option-text">z = +26.0 → Pass</span></li>
+      <li class="option" onclick="select(this,'q13','D')"><span class="option-letter">D</span><span class="option-text">z = −26.0 → Fail</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q13','A','z = 2.0×8 + 0.5×70 − 60 = 16 + 35 − 60 = −9 → Fail')">▶ Show answer</button>
+    <div class="answer-box" id="q13-ans">
+      <div class="answer-label">ANSWER — CAREFUL CALCULATION REQUIRED</div>
+      <p><span class="correct-letter">A</span> — z = 2.0×8 + 0.5×70 − 60 = 16 + 35 − 60 = <strong>−9</strong> &lt; 0 → Fail. Many students pick B by forgetting to apply the bias. Always compute the full z, including b!</p>
+    </div>
+  </section>
+
+  <!-- Q14 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 14 / 15</span>
+      <span class="q-tag">Analysis</span>
+      <span class="diff hard">HARD</span>
+    </div>
+    <p class="q-text">You test hundreds of weight combinations on a dataset. Accuracy never exceeds <strong>94%</strong>. What is the most likely explanation?</p>
+    <ul class="options" id="q14-opts">
+      <li class="option" onclick="select(this,'q14','A')"><span class="option-letter">A</span><span class="option-text">The learning rate is too high</span></li>
+      <li class="option" onclick="select(this,'q14','B')"><span class="option-letter">B</span><span class="option-text">The activation function is wrong</span></li>
+      <li class="option" onclick="select(this,'q14','C')"><span class="option-letter">C</span><span class="option-text">The dataset is not linearly separable — the classes overlap</span></li>
+      <li class="option" onclick="select(this,'q14','D')"><span class="option-letter">D</span><span class="option-text">The bias is missing</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q14','C','If no parameter combination improves accuracy, the data overlap cannot be fixed by a single line.')">▶ Show answer</button>
+    <div class="answer-box" id="q14-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">C</span> — When exhaustive search over all weight combinations cannot improve accuracy, the bottleneck is the model's capacity, not the parameters. The data is likely not linearly separable — the 6% error comes from overlapping classes that no single line can correctly separate.</p>
+    </div>
+  </section>
+
+  <!-- Q15 -->
+  <section class="question-slide">
+    <div class="q-header">
+      <span class="q-number">Q 15 / 15</span>
+      <span class="q-tag">Analysis</span>
+      <span class="diff hard">HARD</span>
+    </div>
+    <p class="q-text">XOR can be solved by a <strong>2-layer network</strong>. Which combination of perceptrons correctly implements XOR?</p>
+    <ul class="options" id="q15-opts">
+      <li class="option" onclick="select(this,'q15','A')"><span class="option-letter">A</span><span class="option-text">NOT(AND(x₁, x₂))</span></li>
+      <li class="option" onclick="select(this,'q15','B')"><span class="option-letter">B</span><span class="option-text">AND(OR(x₁, x₂), NAND(x₁, x₂))</span></li>
+      <li class="option" onclick="select(this,'q15','C')"><span class="option-letter">C</span><span class="option-text">OR(AND(x₁, x₂), NOT(x₁))</span></li>
+      <li class="option" onclick="select(this,'q15','D')"><span class="option-letter">D</span><span class="option-text">NAND(OR(x₁, x₂), AND(x₁, x₂))</span></li>
+    </ul>
+    <button class="reveal-btn" onclick="revealAnswer('q15','B','OR: at least one is 1. NAND: not both are 1. AND combines them → XOR.')">▶ Show answer</button>
+    <div class="answer-box" id="q15-ans">
+      <div class="answer-label">ANSWER</div>
+      <p><span class="correct-letter">B</span> — OR catches "at least one input is 1"; NAND catches "not both are 1"; AND of those two gives exactly "exactly one input is 1" = XOR. Verify: (0,0)→AND(0,1)=0✓ (1,0)→AND(1,1)=1✓ (0,1)→AND(1,1)=1✓ (1,1)→AND(1,0)=0✓.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SCORE SLIDE ══════════════════ -->
+  <section class="score-slide">
+    <h2>How did you do?</h2>
+    <p style="color:var(--muted); font-size:0.8em; margin-bottom:0;">Score yourself and see what to review.</p>
+    <div class="score-grid">
+      <div class="score-card gold">
+        <div class="range">13–15</div>
+        <div class="label">Excellent<br/>Solid perceptron mastery</div>
+      </div>
+      <div class="score-card silver">
+        <div class="range">10–12</div>
+        <div class="label">Good<br/>Review geometry &amp; gates</div>
+      </div>
+      <div class="score-card bronze">
+        <div class="range">7–9</div>
+        <div class="label">Fair<br/>Revisit sections 4 &amp; 5</div>
+      </div>
+      <div class="score-card retry" style="grid-column: 1 / -1; max-width: 320px; margin: 0 auto;">
+        <div class="range">&lt; 7</div>
+        <div class="label">Needs work — re-read the notebook from the start</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <p style="font-size:0.72em; color:var(--muted); margin-top:12px;">
+      Topics covered: <span style="color:var(--text)">Bias &amp; weights · Activation functions · Vectorization · Logic gates · Decision boundaries · Linear separability · 2-layer networks</span>
+    </p>
+  </section>
+
+</div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'none',
+    width: 1100,
+    height: 700,
+    margin: 0.04,
+    controls: true,
+    controlsLayout: 'bottom-right',
+    overview: true,
+    keyboard: true,
+  });
+
+  // Track answered state per question
+  const answered = {};
+
+  function select(optionEl, qid, letter) {
+    // prevent re-clicking after answer revealed
+    if (answered[qid]) return;
+  }
+
+  function revealAnswer(qid, correctLetter, explanation) {
+    if (answered[qid]) return;
+    answered[qid] = true;
+
+    // Mark options
+    const opts = document.querySelectorAll(`#${qid}-opts .option`);
+    opts.forEach(opt => {
+      const letter = opt.querySelector('.option-letter').textContent.trim();
+      if (letter === correctLetter) {
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('wrong');
+      }
+    });
+
+    // Show answer box
+    const box = document.getElementById(`${qid}-ans`);
+    if (box) box.classList.add('visible');
+
+    // Hide button
+    event.target.style.display = 'none';
+  }
+</script>
+</body>
+</html>

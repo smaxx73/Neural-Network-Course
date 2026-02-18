@@ -7,57 +7,59 @@
 
 ## Table of Contents
 
-1. [The Biological Inspiration](#biological)
-2. [A Simple Mathematical Model](#model)
-3. [Activation Functions](#activation)
-4. [Manual Calculations: Your First Perceptron](#manual)
-5. [Visual Understanding: Separating Points](#visual)
-6. [From Manual to Matrix Operations](#matrix)
-7. [Building a Classifier](#classifier)
-8. [Exercises](#exercises)
+1. [The Biological Inspiration](#1-the-biological-inspiration)
+2. [A Simple Mathematical Model](#2-a-simple-mathematical-model)
+3. [Activation Functions](#3-activation-functions)
+4. [Manual Calculations: Your First Perceptron](#4-manual-calculations-your-first-perceptron)
+5. [Visual Understanding: Separating Points](#5-visual-understanding-separating-points)
+6. [From Manual Calculations to Matrix Operations](#6-from-manual-calculations-to-matrix-operations)
+7. [Building a Classifier](#7-building-a-classifier)
+8. [Exercises](#8-exercises)
 
 ---
 
-## 1. The Biological Inspiration {#biological}
+## 1. The Biological Inspiration
 
-### The Neuron
+### The Biological Neuron
 
 A biological neuron has three main parts:
-- **Dendrites**: Receive signals from other neurons
-- **Cell body**: Processes the signals
-- **Axon**: Sends output signal if threshold is reached
+
+- **Dendrites**: receive signals from other neurons
+- **Cell body**: integrates and processes those signals
+- **Axon**: transmits the output signal if a threshold is exceeded
 
 ```
-     Dendrites        Cell Body         Axon
-        ↓                ↓                ↓
-    Inputs  →  [Sum + Threshold]  →  Output
+     Dendrites          Cell Body            Axon
+        ↓                   ↓                 ↓
+    Inputs  →  [Weighted Sum + Threshold]  →  Output
 ```
 
 ### The Perceptron Idea (1957)
 
 Frank Rosenblatt asked: *"Can we build a simple mathematical model of this neuron?"*
 
-The answer: **The Perceptron**
+The answer: **the perceptron**.
+
 - Takes multiple inputs
-- Multiplies each by a weight (importance)
-- Sums everything up
-- Decides: "Fire or not?"
+- Multiplies each by a weight (its importance)
+- Sums everything together
+- Decides: "fire or not?"
 
 ---
 
-## 2. A Simple Mathematical Model {#model}
+## 2. A Simple Mathematical Model
 
 ### The Simplest Example: Two Inputs
 
 Imagine you're deciding whether to go to the beach 🏖️
 
 **Inputs:**
-- $x_1$: Temperature (0 to 10 scale)
-- $x_2$: Sunshine (0 to 10 scale)
+- $x_1$: Temperature (scale 0 to 10)
+- $x_2$: Sunshine (scale 0 to 10)
 
 **Weights** (how important each factor is):
-- $w_1 = 0.7$: Temperature matters a lot
-- $w_2 = 0.5$: Sunshine matters too
+- $w_1 = 0.7$: temperature matters a lot
+- $w_2 = 0.5$: sunshine matters too
 
 **Calculation:**
 $$
@@ -65,8 +67,8 @@ $$
 $$
 
 **Decision:**
-- If Score ≥ 6: Go to the beach! ✅
-- If Score < 6: Stay home ❌
+- If Score ≥ 6 → Go to the beach ✅
+- If Score < 6 → Stay home ❌
 
 ### Example Calculation
 
@@ -76,25 +78,19 @@ $$
 \text{Score} = 0.7 \times 8 + 0.5 \times 7 = 5.6 + 3.5 = 9.1
 $$
 
-9.1 ≥ 6 → **Go to the beach!** ✅
+$9.1 \geq 6$ → **Go to the beach!** ✅
 
 ```python
-# Let's code this simple example
-import numpy as np
-
-# Inputs
+# Coded example
 x1 = 8  # Temperature
 x2 = 7  # Sunshine
 
-# Weights
 w1 = 0.7
 w2 = 0.5
 
-# Calculation
 score = w1 * x1 + w2 * x2
 print(f"Score: {score}")
 
-# Decision
 threshold = 6
 if score >= threshold:
     print("Go to the beach! ✅")
@@ -108,25 +104,33 @@ Score: 9.1
 Go to the beach! ✅
 ```
 
+### The Bias: Shifting the Decision
+
+In the examples above, the decision threshold is set externally (here, `threshold = 6`). In practice, it is embedded directly into the calculation as a **bias** $b$:
+
+$$
+z = w_1 x_1 + w_2 x_2 + b
+$$
+
+**Decision:** if $z \geq 0$, output 1; otherwise output 0.
+
+Rewriting the example:
+
+$$
+z = 0.7 \times 8 + 0.5 \times 7 - 6 = 3.1 \geq 0 \quad \rightarrow \text{Go to the beach ✅}
+$$
+
+> **Key takeaway:** The bias $b$ acts as a built-in threshold. Changing $b$ shifts the decision boundary without touching the weights.
+
 ---
 
-## 3. Activation Functions {#activation}
+## 3. Activation Functions
 
 ### What is an Activation Function?
 
-An **activation function** decides how to convert the score into an output.
+An **activation function** converts the score $z$ into an interpretable output. It determines the perceptron's decision style.
 
-Think of it as different decision-making styles:
-- **Binary**: Yes or No (0 or 1)
-- **Gradient**: How much yes? (smooth transition)
-
-### Common Activation Functions
-
-#### 3.1 Step Function (Original Perceptron)
-
-**Rule:** 
-- Output 1 if input ≥ 0
-- Output 0 if input < 0
+### 3.1 Step Function (Original Perceptron)
 
 $$
 f(x) = \begin{cases}
@@ -136,24 +140,20 @@ f(x) = \begin{cases}
 $$
 
 ```python
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Create x values
 x = np.linspace(-5, 5, 1000)
 
-# Step function
 def step_function(x):
     return np.where(x >= 0, 1, 0)
 
-y = step_function(x)
-
 plt.figure(figsize=(8, 5))
-plt.plot(x, y, 'b-', linewidth=2, label='Step Function')
+plt.plot(x, step_function(x), 'b-', linewidth=2, label='Step Function')
 plt.axhline(y=0, color='k', linestyle='--', alpha=0.3)
 plt.axvline(x=0, color='k', linestyle='--', alpha=0.3)
 plt.grid(True, alpha=0.3)
-plt.xlabel('Input', fontsize=12)
+plt.xlabel('Input $z$', fontsize=12)
 plt.ylabel('Output', fontsize=12)
 plt.title('Step Function (Heaviside)', fontsize=14)
 plt.ylim(-0.2, 1.2)
@@ -161,11 +161,7 @@ plt.legend()
 plt.show()
 ```
 
-#### 3.2 Sign Function
-
-**Rule:**
-- Output +1 if input ≥ 0
-- Output -1 if input < 0
+### 3.2 Sign Function
 
 $$
 f(x) = \begin{cases}
@@ -174,365 +170,274 @@ f(x) = \begin{cases}
 \end{cases}
 $$
 
-This is useful when we want to classify into two classes: +1 or -1.
+Useful when you prefer classes $+1$ and $-1$ rather than $0$ and $1$.
 
 ```python
 def sign_function(x):
     return np.where(x >= 0, 1, -1)
-
-y_sign = sign_function(x)
-
-plt.figure(figsize=(8, 5))
-plt.plot(x, y_sign, 'r-', linewidth=2, label='Sign Function')
-plt.axhline(y=0, color='k', linestyle='--', alpha=0.3)
-plt.axvline(x=0, color='k', linestyle='--', alpha=0.3)
-plt.grid(True, alpha=0.3)
-plt.xlabel('Input', fontsize=12)
-plt.ylabel('Output', fontsize=12)
-plt.title('Sign Function', fontsize=14)
-plt.ylim(-1.5, 1.5)
-plt.legend()
-plt.show()
 ```
 
-#### 3.3 Sigmoid Function (Smooth)
-
-**Rule:** Smooth S-curve from 0 to 1
+### 3.3 Sigmoid Function (Smooth)
 
 $$
 f(x) = \frac{1}{1 + e^{-x}}
 $$
 
-**Advantage:** Smooth, differentiable (needed for learning!)
+**Advantage:** smooth and differentiable — essential for learning via backpropagation.
 
 ```python
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
-
-y_sigmoid = sigmoid(x)
-
-plt.figure(figsize=(8, 5))
-plt.plot(x, y_sigmoid, 'g-', linewidth=2, label='Sigmoid')
-plt.axhline(y=0.5, color='k', linestyle='--', alpha=0.3)
-plt.axvline(x=0, color='k', linestyle='--', alpha=0.3)
-plt.grid(True, alpha=0.3)
-plt.xlabel('Input', fontsize=12)
-plt.ylabel('Output', fontsize=12)
-plt.title('Sigmoid Function', fontsize=14)
-plt.legend()
-plt.show()
 ```
 
-#### 3.4 ReLU (Modern Choice)
-
-**Rule:** Pass positive values, zero out negative ones
+### 3.4 ReLU (Modern Choice)
 
 $$
 f(x) = \max(0, x)
 $$
 
-**Advantage:** Simple, fast, works well in deep networks!
+**Advantage:** simple, fast, and very effective in deep networks.
 
 ```python
 def relu(x):
     return np.maximum(0, x)
-
-y_relu = relu(x)
-
-plt.figure(figsize=(8, 5))
-plt.plot(x, y_relu, 'm-', linewidth=2, label='ReLU')
-plt.axhline(y=0, color='k', linestyle='--', alpha=0.3)
-plt.axvline(x=0, color='k', linestyle='--', alpha=0.3)
-plt.grid(True, alpha=0.3)
-plt.xlabel('Input', fontsize=12)
-plt.ylabel('Output', fontsize=12)
-plt.title('ReLU (Rectified Linear Unit)', fontsize=14)
-plt.legend()
-plt.show()
 ```
 
-#### 3.5 Comparison of All Functions
+### 3.5 Comparison of All Four Functions
 
 ```python
 fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+functions = [
+    (step_function, 'Step',    'b'),
+    (sign_function, 'Sign',    'r'),
+    (sigmoid,       'Sigmoid', 'g'),
+    (relu,          'ReLU',    'm'),
+]
 
-# Step
-axes[0, 0].plot(x, step_function(x), 'b-', linewidth=2)
-axes[0, 0].set_title('Step Function', fontsize=12)
-axes[0, 0].grid(True, alpha=0.3)
-axes[0, 0].axhline(y=0, color='k', linestyle='--', alpha=0.3)
-axes[0, 0].axvline(x=0, color='k', linestyle='--', alpha=0.3)
-
-# Sign
-axes[0, 1].plot(x, sign_function(x), 'r-', linewidth=2)
-axes[0, 1].set_title('Sign Function', fontsize=12)
-axes[0, 1].grid(True, alpha=0.3)
-axes[0, 1].axhline(y=0, color='k', linestyle='--', alpha=0.3)
-axes[0, 1].axvline(x=0, color='k', linestyle='--', alpha=0.3)
-
-# Sigmoid
-axes[1, 0].plot(x, sigmoid(x), 'g-', linewidth=2)
-axes[1, 0].set_title('Sigmoid Function', fontsize=12)
-axes[1, 0].grid(True, alpha=0.3)
-axes[1, 0].axhline(y=0.5, color='k', linestyle='--', alpha=0.3)
-axes[1, 0].axvline(x=0, color='k', linestyle='--', alpha=0.3)
-
-# ReLU
-axes[1, 1].plot(x, relu(x), 'm-', linewidth=2)
-axes[1, 1].set_title('ReLU Function', fontsize=12)
-axes[1, 1].grid(True, alpha=0.3)
-axes[1, 1].axhline(y=0, color='k', linestyle='--', alpha=0.3)
-axes[1, 1].axvline(x=0, color='k', linestyle='--', alpha=0.3)
+for ax, (fn, title, color) in zip(axes.flat, functions):
+    ax.plot(x, fn(x), color=color, linewidth=2)
+    ax.set_title(title, fontsize=12)
+    ax.grid(True, alpha=0.3)
+    ax.axhline(y=0, color='k', linestyle='--', alpha=0.3)
+    ax.axvline(x=0, color='k', linestyle='--', alpha=0.3)
 
 plt.tight_layout()
 plt.show()
 ```
 
-**Key Insight:** For this course, we'll mainly use the **sign function** because it's simple for classification!
+> **For this course:** we will mainly use the **sign function** for classification, as it is easy to analyze by hand.
 
 ---
 
-## 4. Manual Calculations: Your First Perceptron {#manual}
+## 4. Manual Calculations: Your First Perceptron
 
-Let's build and test a perceptron **by hand** before using computers!
+Let's build and test a perceptron **by hand** before moving to code.
 
-### Example 1: AND Logic Gate
+### The Full Formula
 
-**Goal:** Create a perceptron that mimics the AND gate.
+For two inputs $x_1, x_2$, a perceptron computes:
 
-**Truth Table:**
-| $x_1$ | $x_2$ | AND Output |
-|-------|-------|------------|
-| 0     | 0     | 0          |
-| 0     | 1     | 0          |
-| 1     | 0     | 0          |
-| 1     | 1     | 1          |
-
-### Step 1: Choose Weights and Bias
-
-Let's try:
-- $w_1 = 1$
-- $w_2 = 1$
-- $b = -1.5$ (bias/threshold)
-
-The perceptron calculates:
 $$
 z = w_1 \cdot x_1 + w_2 \cdot x_2 + b
 $$
 
-Then applies sign function:
+Then applies the activation function:
+
 $$
-\text{output} = \begin{cases}
-1 & \text{if } z \geq 0 \\
-0 & \text{if } z < 0
-\end{cases}
+\hat{y} = \begin{cases} 1 & \text{if } z \geq 0 \\ 0 & \text{if } z < 0 \end{cases}
 $$
 
-### Step 2: Test All Inputs (By Hand!)
+### Guided Example: The AND Logic Gate
 
-**Test 1:** $x_1 = 0, x_2 = 0$
-$$
-z = 1 \times 0 + 1 \times 0 + (-1.5) = -1.5
-$$
-$z < 0$ → **Output: 0** ✅ (Correct!)
+**Goal:** build a perceptron that reproduces the AND truth table.
 
-**Test 2:** $x_1 = 0, x_2 = 1$
-$$
-z = 1 \times 0 + 1 \times 1 + (-1.5) = -0.5
-$$
-$z < 0$ → **Output: 0** ✅ (Correct!)
+| $x_1$ | $x_2$ | AND |
+|:---:|:---:|:---:|
+| 0 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 0 | 0 |
+| 1 | 1 | 1 |
 
-**Test 3:** $x_1 = 1, x_2 = 0$
-$$
-z = 1 \times 1 + 1 \times 0 + (-1.5) = -0.5
-$$
-$z < 0$ → **Output: 0** ✅ (Correct!)
+**Parameter choice:**
+- $w_1 = 1$, $w_2 = 1$, $b = -1.5$
 
-**Test 4:** $x_1 = 1, x_2 = 1$
-$$
-z = 1 \times 1 + 1 \times 1 + (-1.5) = 0.5
-$$
-$z \geq 0$ → **Output: 1** ✅ (Correct!)
+**Manual verification (do this on paper):**
 
-🎉 **Success!** Our perceptron implements AND!
+| $x_1$ | $x_2$ | $z = x_1 + x_2 - 1.5$ | Sign of $z$ | Output |
+|:---:|:---:|:---:|:---:|:---:|
+| 0 | 0 | $-1.5$ | $< 0$ | 0 ✅ |
+| 0 | 1 | $-0.5$ | $< 0$ | 0 ✅ |
+| 1 | 0 | $-0.5$ | $< 0$ | 0 ✅ |
+| 1 | 1 | $+0.5$ | $\geq 0$ | 1 ✅ |
 
-### Step 3: Code It
+All cases are correct — the perceptron correctly implements AND.
+
+**Code:**
 
 ```python
 def perceptron_AND(x1, x2):
-    """Simple AND gate perceptron"""
-    w1 = 1.0
-    w2 = 1.0
-    b = -1.5
-    
-    # Calculate weighted sum
+    w1, w2, b = 1.0, 1.0, -1.5
     z = w1 * x1 + w2 * x2 + b
-    
-    # Apply activation (step function)
-    if z >= 0:
-        return 1
-    else:
-        return 0
+    return 1 if z >= 0 else 0
 
-# Test all combinations
-print("AND Gate Test:")
-print(f"0 AND 0 = {perceptron_AND(0, 0)}")
-print(f"0 AND 1 = {perceptron_AND(0, 1)}")
-print(f"1 AND 0 = {perceptron_AND(1, 0)}")
-print(f"1 AND 1 = {perceptron_AND(1, 1)}")
+# Test
+print("AND gate test:")
+for x1 in [0, 1]:
+    for x2 in [0, 1]:
+        print(f"  {x1} AND {x2} = {perceptron_AND(x1, x2)}")
 ```
 
 **Output:**
 ```
-AND Gate Test:
-0 AND 0 = 0
-0 AND 1 = 0
-1 AND 0 = 0
-1 AND 1 = 1
-```
-
-### 📝 Exercise 4.1: OR Gate
-
-**Your turn!** Design a perceptron for the OR gate.
-
-**Truth Table:**
-| $x_1$ | $x_2$ | OR Output |
-|-------|-------|-----------|
-| 0     | 0     | 0         |
-| 0     | 1     | 1         |
-| 1     | 0     | 1         |
-| 1     | 1     | 1         |
-
-**Hints:**
-- Try $w_1 = 1, w_2 = 1$
-- What bias $b$ would work?
-- Test manually first!
-- Then implement in code
-
-```python
-# Your solution here
-def perceptron_OR(x1, x2):
-    # Choose weights and bias
-    w1 = ???
-    w2 = ???
-    b = ???
-    
-    z = w1 * x1 + w2 * x2 + b
-    
-    if z >= 0:
-        return 1
-    else:
-        return 0
+AND gate test:
+  0 AND 0 = 0
+  0 AND 1 = 0
+  1 AND 0 = 0
+  1 AND 1 = 1
 ```
 
 ---
 
-## 5. Visual Understanding: Separating Points {#visual}
+### 📝 Exercise 4.1: OR Gate
+
+**Task:** Design a perceptron for the OR gate.
+
+| $x_1$ | $x_2$ | OR |
+|:---:|:---:|:---:|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 1 |
+
+**Expected steps:**
+
+1. Choose $w_1$, $w_2$ and $b$ by reasoning: what is the difference between OR and AND?
+2. **Verify manually** for all 4 cases (full table, as above).
+3. Implement and test.
+4. Explain in one sentence why your bias works.
+
+```python
+def perceptron_OR(x1, x2):
+    # To complete
+    w1 = ...
+    w2 = ...
+    b  = ...
+    z = w1 * x1 + w2 * x2 + b
+    return 1 if z >= 0 else 0
+
+# Test
+for x1 in [0, 1]:
+    for x2 in [0, 1]:
+        print(f"  {x1} OR {x2} = {perceptron_OR(x1, x2)}")
+```
+
+> **Note:** several different bias values work. Justify yours.
+
+---
+
+## 5. Visual Understanding: Separating Points
 
 ### The Geometric View
 
-A perceptron with 2 inputs draws a **line** in 2D space!
+A perceptron with 2 inputs draws a **line** in 2D space.
 
-The equation:
+The equation of the decision boundary (where $z = 0$) is:
+
 $$
 w_1 x_1 + w_2 x_2 + b = 0
 $$
 
-This is a line! Points on one side → Class 0, other side → Class 1
+This is the equation of a line. Points on one side → Class 0, the other → Class 1.
 
-### Example: Visualizing AND Gate
+Rewriting in slope-intercept form:
+
+$$
+x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2}
+$$
+
+> **Intuition:** the weights control the **orientation** of the line, the bias controls its **offset**.
+
+### Visualization: AND Gate
 
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
 
-# The 4 points from AND gate
-points = np.array([
-    [0, 0],  # (0,0) → class 0
-    [0, 1],  # (0,1) → class 0
-    [1, 0],  # (1,0) → class 0
-    [1, 1]   # (1,1) → class 1
-])
-
+points = np.array([[0,0],[0,1],[1,0],[1,1]])
 labels = np.array([0, 0, 0, 1])
 
-# Plot the points
-plt.figure(figsize=(8, 8))
-
-# Class 0 points (blue circles)
-class_0 = points[labels == 0]
-plt.scatter(class_0[:, 0], class_0[:, 1], 
-            s=200, c='blue', marker='o', 
-            edgecolors='black', linewidth=2,
-            label='Class 0 (Output = 0)')
-
-# Class 1 points (red squares)
-class_1 = points[labels == 1]
-plt.scatter(class_1[:, 0], class_1[:, 1], 
-            s=200, c='red', marker='s', 
-            edgecolors='black', linewidth=2,
-            label='Class 1 (Output = 1)')
-
-# Draw the decision boundary
-# w1*x1 + w2*x2 + b = 0
-# x2 = -(w1*x1 + b) / w2
 w1, w2, b = 1, 1, -1.5
 
-x1_line = np.linspace(-0.5, 1.5, 100)
+plt.figure(figsize=(7, 7))
+
+# Class 0 (blue circles)
+c0 = points[labels == 0]
+plt.scatter(c0[:, 0], c0[:, 1], s=200, c='royalblue', marker='o',
+            edgecolors='black', linewidth=2, label='Class 0 (output = 0)', zorder=5)
+
+# Class 1 (red squares)
+c1 = points[labels == 1]
+plt.scatter(c1[:, 0], c1[:, 1], s=200, c='tomato', marker='s',
+            edgecolors='black', linewidth=2, label='Class 1 (output = 1)', zorder=5)
+
+# Decision boundary
+x1_line = np.linspace(-0.5, 1.5, 200)
 x2_line = -(w1 * x1_line + b) / w2
+plt.plot(x1_line, x2_line, 'g-', linewidth=2.5, label='Decision boundary')
 
-plt.plot(x1_line, x2_line, 'g-', linewidth=3, label='Decision Boundary')
+# Annotations
+for pt, lbl in zip(points, ['(0,0)', '(0,1)', '(1,0)', '(1,1)']):
+    plt.annotate(lbl, xy=pt, xytext=(pt[0]+0.05, pt[1]+0.05), fontsize=10)
 
-# Add labels and formatting
 plt.xlim(-0.5, 1.5)
 plt.ylim(-0.5, 1.5)
-plt.xlabel('$x_1$', fontsize=14)
-plt.ylabel('$x_2$', fontsize=14)
-plt.title('AND Gate: Decision Boundary', fontsize=16)
-plt.grid(True, alpha=0.3)
+plt.xlabel('$x_1$', fontsize=13)
+plt.ylabel('$x_2$', fontsize=13)
+plt.title('AND Gate — Decision Boundary', fontsize=14)
 plt.legend(fontsize=11)
-plt.axhline(y=0, color='k', linewidth=0.5)
-plt.axvline(x=0, color='k', linewidth=0.5)
-
-# Add text annotations
-plt.text(-0.2, -0.2, '(0,0)', fontsize=10)
-plt.text(-0.2, 1.05, '(0,1)', fontsize=10)
-plt.text(1.05, -0.2, '(1,0)', fontsize=10)
-plt.text(1.05, 1.05, '(1,1)', fontsize=10)
-
+plt.grid(True, alpha=0.3)
+plt.axhline(0, color='k', linewidth=0.5)
+plt.axvline(0, color='k', linewidth=0.5)
 plt.show()
 ```
 
-**Interpretation:**
-- Green line = decision boundary
-- Blue circles (Class 0) are below/left of the line
-- Red square (Class 1) is above/right of the line
-
-### 📝 Exercise 5.1: Visualize Your OR Gate
-
-Plot the decision boundary for your OR gate solution!
-
-```python
-# Your solution here
-# Hint: Use the same plotting code but with YOUR weights and bias
-```
+**Reading the plot:**
+- The green line separates blue points (Class 0) from red points (Class 1)
+- All blue points are below/left → correctly classified
+- The red point $(1,1)$ is above/right → correctly classified
 
 ---
 
-## 6. From Manual to Matrix Operations {#matrix}
+### 📝 Exercise 5.1: Visualize Your OR Gate — and Understand Variants
+
+**Part A:** Plot the decision boundary for your OR gate (use the weights from Exercise 4.1).
+
+```python
+# To complete with your own w1, w2, b
+```
+
+**Part B — Reflection question:** Does the point $(0.5, 0.5)$ belong to Class 0 or Class 1 according to your perceptron? Compute $z$ for this point and verify it graphically.
+
+**Part C — Exploration:** Try a second valid bias for the OR gate. Plot both boundaries on the same graph. What do you observe? What does this tell you about the uniqueness of the solution?
+
+> **Goal:** understand that multiple lines can solve the same linearly separable problem.
+
+---
+
+## 6. From Manual Calculations to Matrix Operations
 
 ### Why Matrices?
 
-When we have **many examples** to test, manual calculation is tedious:
+When we have **many examples** to test, point-by-point calculation is slow:
 
 ```python
-# Testing 100 points manually? No way!
+# For 100 points, we loop — not efficient
 for i in range(100):
     z = w1*x1[i] + w2*x2[i] + b
-    output[i] = sign(z)
+    output[i] = 1 if z >= 0 else 0
 ```
 
-**Solution:** Use matrix operations! Calculate everything at once.
+**Solution:** matrix operations allow computing everything **in a single line**.
 
 ### Vector Notation
 
@@ -543,117 +448,28 @@ $$
 
 We write:
 $$
-z = \mathbf{w}^T \mathbf{x} + b
+z = \mathbf{w}^\top \mathbf{x} + b
 $$
 
-where:
-- $\mathbf{w} = [w_1, w_2]^T$ (weights vector)
-- $\mathbf{x} = [x_1, x_2]^T$ (input vector)
-- $\mathbf{w}^T \mathbf{x}$ is the dot product
+where $\mathbf{w} = [w_1, w_2]^\top$ and $\mathbf{x} = [x_1, x_2]^\top$.
 
-### Manual → Matrix Transition
-
-**Manual way:**
-```python
-# One point at a time
-x1, x2 = 1, 1
-z = w1*x1 + w2*x2 + b
-output = 1 if z >= 0 else 0
-```
-
-**Matrix way:**
-```python
-# Multiple points at once!
-X = np.array([[0, 0],
-              [0, 1],
-              [1, 0],
-              [1, 1]])
-
-w = np.array([1, 1])
-b = -1.5
-
-# Compute all at once
-z = X @ w + b  # Matrix multiplication!
-outputs = (z >= 0).astype(int)
-```
-
-### Example: AND Gate with Matrices
-
-```python
-import numpy as np
-
-# Define all 4 inputs as a matrix
-X = np.array([
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1]
-])
-
-# Define weights and bias
-w = np.array([1.0, 1.0])
-b = -1.5
-
-print("Inputs:")
-print(X)
-print("\nWeights:", w)
-print("Bias:", b)
-
-# Compute weighted sums for ALL points
-z = X @ w + b
-print("\nWeighted sums (z):")
-print(z)
-
-# Apply activation function
-outputs = (z >= 0).astype(int)
-print("\nOutputs (after step function):")
-print(outputs)
-
-# Verify
-print("\nTruth table verification:")
-for i in range(4):
-    print(f"{X[i]} → {outputs[i]}")
-```
-
-**Output:**
-```
-Inputs:
-[[0 0]
- [0 1]
- [1 0]
- [1 1]]
-
-Weights: [1. 1.]
-Bias: -1.5
-
-Weighted sums (z):
-[-1.5 -0.5 -0.5  0.5]
-
-Outputs (after step function):
-[0 0 0 1]
-
-Truth table verification:
-[0 0] → 0
-[0 1] → 0
-[1 0] → 0
-[1 1] → 1
-```
-
-### Understanding the Matrix Multiplication
-
-Let's break down `X @ w`:
+For multiple examples at once, we stack inputs into a matrix $X$ (one row = one example):
 
 $$
+\mathbf{z} = X \mathbf{w} + b
+$$
+
+### Breaking Down the Matrix Product
+
+$$
+X \mathbf{w} =
 \begin{bmatrix}
 0 & 0 \\
 0 & 1 \\
 1 & 0 \\
 1 & 1
 \end{bmatrix}
-\begin{bmatrix}
-1 \\
-1
-\end{bmatrix}
+\begin{bmatrix} 1 \\ 1 \end{bmatrix}
 =
 \begin{bmatrix}
 0 \times 1 + 0 \times 1 \\
@@ -662,29 +478,61 @@ $$
 1 \times 1 + 1 \times 1
 \end{bmatrix}
 =
-\begin{bmatrix}
-0 \\
-1 \\
-1 \\
-2
-\end{bmatrix}
+\begin{bmatrix} 0 \\ 1 \\ 1 \\ 2 \end{bmatrix}
 $$
 
-Then add bias: $[0, 1, 1, 2] + (-1.5) = [-1.5, -0.5, -0.5, 0.5]$
+Then: $\mathbf{z} = [0,1,1,2] + (-1.5) = [-1.5, -0.5, -0.5, 0.5]$
 
-**Key advantage:** One operation for all points! ⚡
+### AND Gate with Matrices
+
+```python
+import numpy as np
+
+X = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+])
+
+w = np.array([1.0, 1.0])
+b = -1.5
+
+# Vectorized computation — all examples at once
+z = X @ w + b
+outputs = (z >= 0).astype(int)
+
+print("Weighted sums z:", z)
+print("Outputs        :", outputs)
+
+print("\nTruth table:")
+for i in range(4):
+    print(f"  {X[i]} → z={z[i]:+.1f} → output={outputs[i]}")
+```
+
+**Output:**
+```
+Weighted sums z: [-1.5 -0.5 -0.5  0.5]
+Outputs        : [0 0 0 1]
+
+Truth table:
+  [0 0] → z=-1.5 → output=0
+  [0 1] → z=-0.5 → output=0
+  [1 0] → z=-0.5 → output=0
+  [1 1] → z=+0.5 → output=1
+```
+
+> **Key advantage:** a single `X @ w + b` operation for all examples. ⚡
 
 ---
 
-## 7. Building a Classifier {#classifier}
+## 7. Building a Classifier
 
-### Real Problem: Separating Two Classes
+### Realistic Problem: Classifying Students
 
-Let's create a **realistic** classification problem with random data!
-
-**Scenario:** Classify students into "Pass" or "Fail" based on:
-- $x_1$: Hours studied
-- $x_2$: Previous exam score
+**Scenario:** predict whether a student passes or fails an exam based on:
+- $x_1$: hours of study
+- $x_2$: score on the previous test
 
 ### Generate Synthetic Data
 
@@ -692,137 +540,100 @@ Let's create a **realistic** classification problem with random data!
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Set random seed for reproducibility
 np.random.seed(42)
 
-# Generate "Pass" students (Class 1) - red squares
+# "Pass" students (Class 1)
 n_pass = 30
-pass_hours = np.random.uniform(5, 10, n_pass)      # 5-10 hours
-pass_scores = np.random.uniform(60, 90, n_pass)    # 60-90 score
-pass_class = np.ones(n_pass)
+pass_hours  = np.random.uniform(5, 10, n_pass)
+pass_scores = np.random.uniform(60, 90, n_pass)
 
-# Generate "Fail" students (Class 0) - blue circles
+# "Fail" students (Class 0)
 n_fail = 30
-fail_hours = np.random.uniform(0, 6, n_fail)       # 0-6 hours
-fail_scores = np.random.uniform(20, 65, n_fail)    # 20-65 score
-fail_class = np.zeros(n_fail)
+fail_hours  = np.random.uniform(0, 6, n_fail)
+fail_scores = np.random.uniform(20, 65, n_fail)
 
-# Combine data
 X = np.vstack([
     np.column_stack([fail_hours, fail_scores]),
     np.column_stack([pass_hours, pass_scores])
 ])
-y = np.concatenate([fail_class, pass_class])
+y = np.concatenate([np.zeros(n_fail), np.ones(n_pass)])
 
-print(f"Dataset: {len(X)} students")
-print(f"Features: {X.shape[1]} (hours studied, exam score)")
-print(f"Pass: {int(np.sum(y))}, Fail: {int(len(y) - np.sum(y))}")
+print(f"Dataset: {len(X)} students, {int(y.sum())} pass, {int((1-y).sum())} fail")
 ```
 
 ### Visualize the Data
 
 ```python
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(9, 7))
 
-# Plot Fail students (blue circles)
-plt.scatter(X[y == 0, 0], X[y == 0, 1], 
-            s=100, c='blue', marker='o', 
-            edgecolors='black', linewidth=1.5,
-            label='Fail (Class 0)', alpha=0.7)
+plt.scatter(X[y==0, 0], X[y==0, 1], s=100, c='royalblue', marker='o',
+            edgecolors='black', linewidth=1.2, alpha=0.8, label='Fail (Class 0)')
+plt.scatter(X[y==1, 0], X[y==1, 1], s=100, c='tomato', marker='s',
+            edgecolors='black', linewidth=1.2, alpha=0.8, label='Pass (Class 1)')
 
-# Plot Pass students (red squares)
-plt.scatter(X[y == 1, 0], X[y == 1, 1], 
-            s=100, c='red', marker='s', 
-            edgecolors='black', linewidth=1.5,
-            label='Pass (Class 1)', alpha=0.7)
-
-plt.xlabel('Hours Studied', fontsize=14)
-plt.ylabel('Previous Exam Score', fontsize=14)
-plt.title('Student Classification Problem', fontsize=16)
+plt.xlabel("Hours studied", fontsize=13)
+plt.ylabel("Previous test score", fontsize=13)
+plt.title("Student Classification Problem", fontsize=15)
 plt.legend(fontsize=12)
 plt.grid(True, alpha=0.3)
 plt.show()
 ```
 
-### Design a Perceptron to Separate Them
+### Designing the Perceptron Intuitively
 
-Let's think intuitively:
-- More hours studied → More likely to pass
-- Higher previous score → More likely to pass
+More study hours → higher chance of passing → $w_1 > 0$
 
-So both weights should be **positive**:
+Better previous score → higher chance of passing → $w_2 > 0$
 
 ```python
-# Intuitive weights
-w1 = 2.0   # Hours studied (important!)
-w2 = 0.5   # Previous score (moderately important)
-b = -60.0  # Threshold
+w = np.array([2.0, 0.5])
+b = -60.0
 
-w = np.array([w1, w2])
-
-print(f"Weights: w1={w1}, w2={w2}")
-print(f"Bias: b={b}")
-print(f"\nDecision boundary equation:")
-print(f"{w1}*hours + {w2}*score + {b} = 0")
+print(f"Boundary equation: {w[0]}·hours + {w[1]}·score + {b} = 0")
+print(f"i.e.: score = {-b/w[1]:.0f} - {w[0]/w[1]:.0f}·hours")
 ```
 
-### Test the Perceptron
+### Evaluating the Classifier
 
 ```python
-# Compute predictions for all students
 z = X @ w + b
 y_pred = (z >= 0).astype(int)
 
-# Calculate accuracy
 accuracy = np.mean(y_pred == y)
-print(f"\nAccuracy: {accuracy * 100:.1f}%")
+print(f"Accuracy: {accuracy * 100:.1f}%")
 
-# Show some predictions
-print("\nSample predictions:")
-for i in range(5):
-    hours, score = X[i]
-    actual = "Pass" if y[i] == 1 else "Fail"
-    predicted = "Pass" if y_pred[i] == 1 else "Fail"
-    match = "✓" if y[i] == y_pred[i] else "✗"
-    print(f"{match} Hours: {hours:.1f}, Score: {score:.1f} | "
-          f"Actual: {actual}, Predicted: {predicted}")
+# Simple confusion matrix
+tp = np.sum((y_pred == 1) & (y == 1))
+tn = np.sum((y_pred == 0) & (y == 0))
+fp = np.sum((y_pred == 1) & (y == 0))
+fn = np.sum((y_pred == 0) & (y == 1))
+
+print(f"\nTrue Positives  (TP): {tp}")
+print(f"True Negatives  (TN): {tn}")
+print(f"False Positives (FP): {fp}")
+print(f"False Negatives (FN): {fn}")
 ```
 
-### Visualize the Decision Boundary
+### Visualizing the Decision Boundary
 
 ```python
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(9, 7))
 
-# Plot the points
-plt.scatter(X[y == 0, 0], X[y == 0, 1], 
-            s=100, c='blue', marker='o', 
-            edgecolors='black', linewidth=1.5,
-            label='Fail (Class 0)', alpha=0.7)
-plt.scatter(X[y == 1, 0], X[y == 1, 1], 
-            s=100, c='red', marker='s', 
-            edgecolors='black', linewidth=1.5,
-            label='Pass (Class 1)', alpha=0.7)
+plt.scatter(X[y==0, 0], X[y==0, 1], s=100, c='royalblue', marker='o',
+            edgecolors='black', linewidth=1.2, alpha=0.8, label='Fail (Class 0)')
+plt.scatter(X[y==1, 0], X[y==1, 1], s=100, c='tomato', marker='s',
+            edgecolors='black', linewidth=1.2, alpha=0.8, label='Pass (Class 1)')
 
-# Draw decision boundary
-# w1*x1 + w2*x2 + b = 0
-# x2 = -(w1*x1 + b) / w2
-x1_line = np.linspace(0, 10, 100)
+x1_line = np.linspace(0, 10, 200)
 x2_line = -(w[0] * x1_line + b) / w[1]
 
-plt.plot(x1_line, x2_line, 'g-', linewidth=3, 
-         label='Decision Boundary', alpha=0.8)
+plt.plot(x1_line, x2_line, 'g-', linewidth=2.5, label='Decision boundary', alpha=0.9)
+plt.fill_between(x1_line, x2_line, 100, alpha=0.08, color='tomato',    label='Pass region')
+plt.fill_between(x1_line, 0,       x2_line, alpha=0.08, color='royalblue', label='Fail region')
 
-# Shade regions
-x1_fill = np.linspace(0, 10, 100)
-x2_fill = -(w[0] * x1_fill + b) / w[1]
-plt.fill_between(x1_fill, x2_fill, 100, alpha=0.1, color='red', 
-                 label='Pass Region')
-plt.fill_between(x1_fill, 0, x2_fill, alpha=0.1, color='blue', 
-                 label='Fail Region')
-
-plt.xlabel('Hours Studied', fontsize=14)
-plt.ylabel('Previous Exam Score', fontsize=14)
-plt.title(f'Student Classifier (Accuracy: {accuracy*100:.1f}%)', fontsize=16)
+plt.xlabel("Hours studied", fontsize=13)
+plt.ylabel("Previous test score", fontsize=13)
+plt.title(f"Student Classifier (accuracy: {accuracy*100:.1f}%)", fontsize=15)
 plt.legend(fontsize=11, loc='lower right')
 plt.grid(True, alpha=0.3)
 plt.xlim(0, 10)
@@ -830,263 +641,252 @@ plt.ylim(20, 90)
 plt.show()
 ```
 
-### Understanding the Decision Boundary
+### Interpreting the Boundary
 
-The line represents: **"The minimum combination to pass"**
+The line $2 \times \text{hours} + 0.5 \times \text{score} - 60 = 0$ gives:
 
-$$
-2.0 \times \text{hours} + 0.5 \times \text{score} - 60 = 0
-$$
-
-Rearranging:
 $$
 \text{score} = 120 - 4 \times \text{hours}
 $$
 
-**Interpretation:**
-- If you study 0 hours, you need a score of 120 (impossible! → Fail)
-- If you study 5 hours, you need a score of 100 (very high!)
-- If you study 10 hours, you need a score of 80 (reasonable!)
+- 0 hours studied → need a score of 120 (impossible → always fail)
+- 5 hours → need a score of 100 (very demanding)
+- 10 hours → need a score of 80 (reasonable)
 
-### Test with New Students
+### Testing New Students
 
 ```python
-# New students to classify
 new_students = np.array([
-    [3, 50],   # 3 hours, score 50
-    [7, 70],   # 7 hours, score 70
-    [9, 85],   # 9 hours, score 85
-    [2, 40],   # 2 hours, score 40
+    [3,  50],  # 3h, score 50
+    [7,  70],  # 7h, score 70
+    [9,  85],  # 9h, score 85
+    [2,  40],  # 2h, score 40
 ])
 
-# Make predictions
 z_new = new_students @ w + b
-predictions = (z_new >= 0).astype(int)
+preds = (z_new >= 0).astype(int)
 
-print("New student predictions:")
-for i, student in enumerate(new_students):
-    hours, score = student
-    z_val = z_new[i]
-    pred = "Pass" if predictions[i] == 1 else "Fail"
-    print(f"Student {i+1}: {hours} hours, score {score} → "
-          f"z={z_val:.1f} → {pred}")
-```
-
-**Output example:**
-```
-New student predictions:
-Student 1: 3.0 hours, score 50.0 → z=-29.0 → Fail
-Student 2: 7.0 hours, score 70.0 → z=-11.0 → Fail
-Student 3: 9.0 hours, score 85.0 → z=0.5 → Pass
-Student 4: 2.0 hours, score 40.0 → z=-36.0 → Fail
+print("Predictions for new students:")
+for i, (student, z_val, pred) in enumerate(zip(new_students, z_new, preds)):
+    label = "Pass" if pred == 1 else "Fail"
+    print(f"  Student {i+1}: {student[0]}h, score {student[1]} → z={z_val:.1f} → {label}")
 ```
 
 ---
 
-## 8. Exercises {#exercises}
+## 8. Exercises
 
 ### 📝 Exercise 8.1: NOT Gate (Easy)
 
-Create a perceptron that implements the NOT gate.
+**Task:** Design a single-input perceptron that implements the NOT gate.
 
-**Truth Table:**
-| $x$ | NOT Output |
-|-----|------------|
-| 0   | 1          |
-| 1   | 0          |
+| $x$ | NOT |
+|:---:|:---:|
+| 0 | 1 |
+| 1 | 0 |
 
-**Hint:** You only need one input! Try $w_1 = -1, b = 0.5$
+**Expected steps:**
+
+1. Reason: if $x$ increases, the output must... ? What sign should $w_1$ have?
+2. Verify by hand for $x=0$ and $x=1$.
+3. Implement and test.
 
 ```python
-# Your solution
 def perceptron_NOT(x):
-    # Your code here
-    pass
+    # To complete — justify your choice of w1 and b
+    w1 = ...
+    b  = ...
+    z = w1 * x + b
+    return 1 if z >= 0 else 0
 
-# Test
-print("NOT Gate:")
-print(f"NOT(0) = {perceptron_NOT(0)}")
-print(f"NOT(1) = {perceptron_NOT(1)}")
+print("NOT(0) =", perceptron_NOT(0))  # Expected: 1
+print("NOT(1) =", perceptron_NOT(1))  # Expected: 0
 ```
 
 ---
 
 ### 📝 Exercise 8.2: NAND Gate (Medium)
 
-The NAND gate is "NOT AND" (opposite of AND).
+**Task:** Design a perceptron for the NAND gate ("NOT AND").
 
-**Truth Table:**
 | $x_1$ | $x_2$ | NAND |
-|-------|-------|------|
-| 0     | 0     | 1    |
-| 0     | 1     | 1    |
-| 1     | 0     | 1    |
-| 1     | 1     | 0    |
+|:---:|:---:|:---:|
+| 0 | 0 | 1 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 0 |
 
-**Hint:** Try negative weights! Think about how to flip the AND gate.
+**Questions:**
+
+1. What do you notice compared to AND? What mathematical transformation has occurred on the outputs?
+2. Deduce the weights and bias without any additional computation.
+3. Verify manually (full table).
+4. Implement and test.
 
 ```python
-# Your solution
 def perceptron_NAND(x1, x2):
-    # Your code here
+    # To complete
     pass
 ```
 
+> **Conceptual hint:** if you have AND with parameters $(w_1, w_2, b)$, what happens if you multiply all parameters by $-1$?
+
 ---
 
-### 📝 Exercise 8.3: Manual Boundary (Medium)
+### 📝 Exercise 8.3: Given Boundary → Manual Classification (Medium)
 
-Given this decision boundary line:
+**Task:** You are given the following decision boundary:
+
 $$
 3x_1 + 2x_2 - 5 = 0
 $$
 
-1. What are $w_1, w_2, b$?
-2. Classify these points manually:
+**Questions:**
+
+1. Identify $w_1$, $w_2$ and $b$.
+2. Classify **by hand** (without a computer) the following points. For each, compute $z$ and conclude:
    - Point A: $(1, 1)$
    - Point B: $(2, 0)$
    - Point C: $(0, 3)$
-3. Plot the line and points
+3. Rewrite the boundary in the form $x_2 = f(x_1)$ and interpret the slope and intercept.
+4. Plot the line and the three points, colored by class.
 
 ```python
-# Your solution
-w1 = ???
-w2 = ???
-b = ???
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Test points
+w1, w2, b = ..., ..., ...
+
 points = np.array([[1, 1], [2, 0], [0, 3]])
-# Calculate z for each point
-# Apply sign function
+names  = ['A', 'B', 'C']
+
+# Compute z and classify
+z = points @ np.array([w1, w2]) + b
+classes = (z >= 0).astype(int)
+
+for name, pt, z_val, c in zip(names, points, z, classes):
+    print(f"Point {name} {tuple(pt)}: z = {z_val:.1f} → Class {c}")
+
 # Plot
+# ... (to complete)
 ```
 
 ---
 
-### 📝 Exercise 8.4: Adjust the Weights (Hard)
+### 📝 Exercise 8.4: Searching for Better Weights (Hard)
 
-Look at the student classification problem again. The accuracy isn't 100%.
+**Context:** The student classifier from Section 7 does not reach 100% accuracy.
 
-**Task:** 
-1. Try different weights and bias values
-2. Can you improve the accuracy?
-3. What's the best accuracy you can achieve?
-4. Is it possible to get 100%? Why or why not?
+**Questions:**
+
+1. **Visualize first.** Plot the two classes. Is there a line that separates them perfectly? Justify visually.
+
+2. **Systematic search.** Test all combinations below and find the best parameters:
 
 ```python
-# Your solution
-# Try different combinations
 w1_values = [1.5, 2.0, 2.5, 3.0]
 w2_values = [0.3, 0.5, 0.7, 1.0]
-b_values = [-50, -60, -70, -80]
+b_values  = [-50, -60, -70, -80]
 
 best_accuracy = 0
-best_params = None
+best_params   = None
 
-# Test all combinations
-# Find the best one
+for w1 in w1_values:
+    for w2 in w2_values:
+        for b_val in b_values:
+            w = np.array([w1, w2])
+            z = X @ w + b_val
+            acc = np.mean((z >= 0).astype(int) == y)
+            if acc > best_accuracy:
+                best_accuracy = acc
+                best_params   = (w1, w2, b_val)
+
+print(f"Best accuracy: {best_accuracy*100:.1f}%")
+print(f"Parameters: w1={best_params[0]}, w2={best_params[1]}, b={best_params[2]}")
 ```
+
+3. **Reflection:** Why is 100% accuracy impossible with a single line on this data? What property of the dataset explains it? *(Hint: look at the overlap region between the two classes.)*
 
 ---
 
-### 📝 Exercise 8.5: Two Lines? (Challenge)
+### 📝 Exercise 8.5: The XOR Problem — Why One Line Is Not Enough (Challenge)
 
-**Problem:** Can a single perceptron separate these points?
+**Task:** Can you separate these points with a single perceptron?
 
 ```python
-# XOR-like data
-points = np.array([
-    [0, 0],  # Class 1 (red)
-    [0, 1],  # Class 0 (blue)
-    [1, 0],  # Class 0 (blue)
-    [1, 1],  # Class 1 (red)
-])
-labels = np.array([1, 0, 0, 1])
+import numpy as np
+import matplotlib.pyplot as plt
+
+points = np.array([[0,0], [0,1], [1,0], [1,1]])
+labels = np.array([1, 0, 0, 1])  # XOR: 1 when x1 ≠ x2
 ```
 
-1. Try to find weights that separate them
-2. Plot your attempts
-3. What do you notice?
-4. Why is this impossible for a single perceptron?
+**Part A — Experimental Exploration:**
 
-**Hint:** This is the famous XOR problem! It needs **two lines** (or a non-linear boundary).
+Try several sets of weights. Display the boundary and the number of errors for each.
+
+```python
+candidates = [
+    (1, -1, 0),
+    (1,  1, -1),
+    (-1, 1, 0),
+    # Add your own attempts...
+]
+
+for w1, w2, b in candidates:
+    w = np.array([w1, w2])
+    z = points @ w + b
+    preds  = (z >= 0).astype(int)
+    errors = int(np.sum(preds != labels))
+    print(f"w1={w1:+}, w2={w2:+}, b={b:+} → {errors} error(s)")
+```
+
+**Part B — Geometric Proof:**
+
+1. Plot the 4 points (Class 0 in blue, Class 1 in red).
+2. Try to draw a line that separates the two classes. What do you observe?
+
+**Part C — Theoretical Question:**
+
+Explain in 3-4 sentences why no linear perceptron can solve XOR. What geometric property of the data makes it impossible? What architecture would be needed to solve this problem?
+
+> **Going further:** Sketch by hand how *two* perceptrons in series (a network with one hidden layer) could solve XOR. This is the central intuition that leads to deep networks.
 
 ---
 
 ## Summary
 
-### What You've Learned
+### What You Have Learned
 
-✅ **The Perceptron Model**
-- Biological inspiration
-- Mathematical formula: $z = w_1 x_1 + w_2 x_2 + b$
-- Output: Apply activation function to $z$
+**The Perceptron Model**
+- Formula: $z = w_1 x_1 + w_2 x_2 + b$, output: $f(z)$
+- Role of weights (feature importance) and bias (threshold offset)
 
-✅ **Activation Functions**
-- Step function (0 or 1)
-- Sign function (+1 or -1)
-- Sigmoid (smooth 0 to 1)
-- ReLU (modern choice)
+**Activation Functions**
+- Step (0 or 1), Sign (+1 or -1), Sigmoid (smooth), ReLU (modern)
 
-✅ **Manual Calculations**
-- AND gate by hand
-- Testing all inputs
-- Understanding each step
+**Manual Calculation**
+- Verifying case by case, understanding each step
 
-✅ **Geometric Interpretation**
-- Decision boundary is a line
-- Separating two classes
-- Visual understanding
+**Geometric View**
+- 1 perceptron = 1 line in $\mathbb{R}^2$
+- Weights control orientation, bias controls offset
 
-✅ **Matrix Operations**
-- Computing many examples at once
-- $z = X @ w + b$
-- Efficient implementation
+**Matrix Operations**
+- $\mathbf{z} = X\mathbf{w} + b$ — all examples at once
 
-✅ **Real Classification**
-- Creating synthetic data
-- Designing a classifier
-- Evaluating accuracy
-- Visualizing results
-
-### Key Insights
-
-1. **One perceptron = one line** (in 2D)
-2. **Weights determine orientation** of the line
-3. **Bias shifts the line** up/down (or left/right)
-4. **Linear separability** is crucial: perceptron only works if classes can be separated by a line
-
-### Next Steps
-
-- **Learning:** How to automatically find the right weights?
-- **Multiple perceptrons:** What if we stack them in layers?
-- **Non-linear problems:** XOR and beyond
-- **Deep learning:** Modern neural networks
-
----
-
-## Additional Resources
+**Real Application**
+- Data generation, intuitive design, evaluation, visualization
 
 ### Key Formulas
 
-**Perceptron Output:**
 $$
-\hat{y} = f(w_1 x_1 + w_2 x_2 + \cdots + w_n x_n + b)
-$$
-
-**Vector Form:**
-$$
-\hat{y} = f(\mathbf{w}^T \mathbf{x} + b)
+\hat{y} = f\!\left(\sum_{i=1}^{n} w_i x_i + b\right) = f(\mathbf{w}^\top \mathbf{x} + b)
 $$
 
-**Decision Boundary (2D):**
+**Decision boundary (2D):**
 $$
-w_1 x_1 + w_2 x_2 + b = 0
-$$
-
-**Slope-Intercept Form:**
-$$
-x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2}
+x_2 = -\frac{w_1}{w_2}\, x_1 - \frac{b}{w_2}
 $$
 
 ### Python Quick Reference
@@ -1096,17 +896,27 @@ $$
 z = w1*x1 + w2*x2 + b
 output = 1 if z >= 0 else 0
 
-# Matrix version
+# Vectorized version
 z = X @ w + b
 outputs = (z >= 0).astype(int)
-
-# Sign function
-outputs = np.sign(z)
 
 # Accuracy
 accuracy = np.mean(predictions == true_labels)
 ```
 
+### Identified Limitations
+
+1. **One perceptron = one line** → can only separate linearly separable data
+2. **Weights are set manually** → how can they be learned automatically?
+3. **XOR is unsolvable** → multiple perceptrons arranged in layers are needed
+
+### Next Steps
+
+- **Automatic learning**: finding the right weights via gradient descent
+- **Multi-layer networks**: stacking perceptrons to solve XOR and beyond
+- **Non-linear problems**: combining ReLU and sigmoid activation functions
+- **Deep learning**: modern neural networks with millions of weights
+
 ---
 
-**Congratulations!** 🎉 You now understand the fundamental building block of neural networks: the perceptron!
+**Congratulations!** 🎉 You now understand the fundamental building block of every neural network: the perceptron.
