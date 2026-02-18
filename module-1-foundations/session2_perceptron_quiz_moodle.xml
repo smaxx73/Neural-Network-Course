@@ -1,0 +1,1043 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<!--
+  SELF-ASSESSMENT QUIZ — Session 2: The Perceptron
+  Format  : Moodle XML (import via Administration > Question bank > Import)
+  Type    : Multiple choice, single answer
+  Themes  :
+    1. Manual calculations — logic gates (AND, OR, NOT, NAND)
+    2. Decision boundaries (slope, bias, interpretation)
+    3. XOR and linear separability
+    4. Student classifier (computing z, making predictions)
+  Scoring : correct = 100%, wrong = 0% (no penalty)
+  Feedback: provided for every answer choice
+-->
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORY 1 — Manual calculations: logic gates
+═══════════════════════════════════════════════════════════ -->
+
+  <question type="category">
+    <category>
+      <text>Session 2 / 1 - Logic gates</text>
+    </category>
+  </question>
+
+  <!-- Q1.1 -->
+  <question type="multichoice">
+    <name><text>AND gate — output for (1,1)</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>An AND perceptron has parameters <strong>w₁ = 1, w₂ = 1, b = −1.5</strong>.</p>
+        <p>What is the value of <em>z</em> and the output for input
+        <strong>(x₁, x₂) = (1, 1)</strong>?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>Compute: z = 1×1 + 1×1 − 1.5 = <strong>+0.5</strong>.
+        Since z ≥ 0, output = <strong>1</strong>.
+        This is consistent with the AND truth table: 1 AND 1 = 1.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>z = +0.5 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 1 + 1 − 1.5 = +0.5 ≥ 0 → output 1.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = −0.5 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Check the sign of b. z = w₁x₁ + w₂x₂ + b = 1 + 1 − 1.5 = +0.5, not −0.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = +1.5 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The bias b = −1.5 must be subtracted. z = 1 + 1 − 1.5 = 0.5, not 1.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = 0 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ z = 1 + 1 − 1.5 = 0.5 ≠ 0. A zero value would mean the point lies exactly on the boundary.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q1.2 -->
+  <question type="multichoice">
+    <name><text>AND gate — output for (1,0)</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Same AND perceptron: <strong>w₁ = 1, w₂ = 1, b = −1.5</strong>.</p>
+        <p>What is the output for input <strong>(x₁, x₂) = (1, 0)</strong>?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = 1×1 + 1×0 − 1.5 = 1 − 1.5 = <strong>−0.5</strong>.
+        Since z &lt; 0, output = <strong>0</strong>.
+        Correct: 1 AND 0 = 0.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>z = −0.5 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 1 + 0 − 1.5 = −0.5 &lt; 0 → output 0.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = +0.5 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ x₂ = 0, so the w₂x₂ term contributes nothing. z = 1 + 0 − 1.5 = −0.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = −1.5 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Don't forget the w₁x₁ term. z = 1×1 + 1×0 − 1.5 = 1 − 1.5 = −0.5, not −1.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = +1.0 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The bias b = −1.5 must always be included. z = 1 − 1.5 = −0.5.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q1.3 -->
+  <question type="multichoice">
+    <name><text>OR gate — which bias works?</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>You want to implement an <strong>OR gate</strong> with weights
+        <strong>w₁ = 1, w₂ = 1</strong>.</p>
+        <p>The output must be 0 only when both inputs are 0, and 1 otherwise.
+        Which value of <strong>b</strong> achieves this?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>For OR(0,0) = 0 we need z = 0 + 0 + b &lt; 0, so b &lt; 0.<br>
+        For OR(1,0) = 1 we need z = 1 + 0 + b ≥ 0, so b ≥ −1.<br>
+        Any b ∈ [−1, 0) works. The canonical choice is <strong>b = −0.5</strong>.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>b = −0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! With b = −0.5: OR(0,0) → z = −0.5 &lt; 0 → 0 ✓ and OR(1,0) → z = 0.5 ≥ 0 → 1 ✓.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>b = −1.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ With b = −1.5, OR(1,0) gives z = 1 − 1.5 = −0.5 &lt; 0 → output 0. That's wrong: OR(1,0) should be 1.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>b = 0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ With b = +0.5, OR(0,0) gives z = 0.5 ≥ 0 → output 1. That's wrong: OR(0,0) must be 0.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>b = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ With b = 0, OR(0,0) gives z = 0 ≥ 0 → output 1. That's wrong: OR(0,0) must be 0.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q1.4 -->
+  <question type="multichoice">
+    <name><text>NOT gate — correct parameters</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>You want a single-input perceptron to implement the <strong>NOT gate</strong>:
+        NOT(0) = 1 and NOT(1) = 0.</p>
+        <p>Which set of parameters is correct?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>With <strong>w₁ = −1, b = 0.5</strong>:<br>
+        NOT(0): z = −1×0 + 0.5 = +0.5 ≥ 0 → 1 ✓<br>
+        NOT(1): z = −1×1 + 0.5 = −0.5 &lt; 0 → 0 ✓<br>
+        The key insight: a <em>negative</em> weight inverts the input's contribution.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>w₁ = −1, b = 0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! NOT(0): z = 0 + 0.5 = 0.5 → 1 ✓. NOT(1): z = −1 + 0.5 = −0.5 → 0 ✓.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>w₁ = 1, b = −0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ These are the OR gate parameters (one input). NOT(0) → z = −0.5 → 0. That's wrong.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>w₁ = −1, b = −0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ With b = −0.5: NOT(0) → z = −0.5 &lt; 0 → output 0. But we need NOT(0) = 1.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>w₁ = 1, b = 0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ With w₁ = +1: NOT(0) → z = 0.5 → 1 ✓, but NOT(1) → z = 1.5 → 1 ✗. The positive weight doesn't invert.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q1.5 -->
+  <question type="multichoice">
+    <name><text>NAND gate — deriving from AND</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>The AND gate uses <strong>w₁ = 1, w₂ = 1, b = −1.5</strong>.</p>
+        <p>How do you derive the <strong>NAND gate</strong> parameters from it?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>NAND = NOT(AND). Multiplying all parameters by −1 gives z_NAND = −z_AND,
+        which flips every output. Result: <strong>w₁ = −1, w₂ = −1, b = +1.5</strong>.
+        Verify: NAND(1,1) → z = −1 − 1 + 1.5 = −0.5 → 0 ✓ (AND gives 1, so NAND gives 0).</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Multiply all parameters by −1: w₁ = −1, w₂ = −1, b = +1.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z_NAND = −z_AND flips every decision. General rule: NOT(f) uses (−w, −b).</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Add 1 to the bias: w₁ = 1, w₂ = 1, b = −0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ These are the OR gate parameters, not NAND. Shifting the bias only translates the boundary, it doesn't invert outputs.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Swap the two weights: w₁ = 1, w₂ = 1, b = −1.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Swapping w₁ and w₂ when they are equal changes nothing. This gives the same AND gate.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Negate only the bias: w₁ = 1, w₂ = 1, b = +1.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Negating only b shifts the boundary but doesn't invert outputs. NAND(0,0) → z = 0 + 0 + 1.5 → 1 ✓,
+        but NAND(1,1) → z = 1 + 1 + 1.5 = 3.5 → 1 ✗ (should be 0).</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q1.6 -->
+  <question type="multichoice">
+    <name><text>NAND gate — verifying (0,0)</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>A NAND perceptron has <strong>w₁ = −1, w₂ = −1, b = 1.5</strong>.</p>
+        <p>What is the output for input <strong>(x₁, x₂) = (0, 0)</strong>?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = −1×0 + −1×0 + 1.5 = <strong>1.5</strong>.
+        Since z ≥ 0, output = <strong>1</strong>.
+        Correct: NAND(0,0) = NOT(AND(0,0)) = NOT(0) = 1.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>z = 1.5 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 0 + 0 + 1.5 = 1.5 ≥ 0 → 1. NAND(0,0) = 1 ✓.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = −1.5 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Both inputs are 0, so the weight terms contribute nothing. z = 0 + 0 + 1.5 = +1.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = 0 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Don't forget the bias! z = −1×0 − 1×0 + 1.5 = 1.5, not 0.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = −2 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Since x₁ = x₂ = 0, only the bias term remains: z = b = +1.5.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORY 2 — Decision boundaries
+═══════════════════════════════════════════════════════════ -->
+
+  <question type="category">
+    <category>
+      <text>Session 2 / 2 - Decision boundaries</text>
+    </category>
+  </question>
+
+  <!-- Q2.1 -->
+  <question type="multichoice">
+    <name><text>Boundary equation — role of bias</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>The decision boundary of a 2D perceptron is the line where z = 0, written as:</p>
+        <p style="text-align:center"><em>x₂ = −(w₁/w₂)x₁ − b/w₂</em></p>
+        <p>If you <strong>increase b</strong> while keeping w₁ and w₂ fixed, what happens to the boundary?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>The slope −w₁/w₂ depends only on the weights and does not change.
+        Only the intercept −b/w₂ changes. Increasing b shifts the line
+        <strong>parallel to itself</strong> — a pure translation.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>The boundary shifts parallel to itself (translation, no rotation)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! The slope −w₁/w₂ is unchanged. Only the intercept −b/w₂ moves.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The boundary rotates clockwise</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Rotation requires changing the slope −w₁/w₂, which depends on the weights, not b.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The boundary becomes curved</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ A perceptron always produces a linear (straight) boundary, regardless of parameter values.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The weights w₁ and w₂ are rescaled proportionally</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Changing b has no effect on the weights. The three parameters are independent.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q2.2 -->
+  <question type="multichoice">
+    <name><text>Boundary slope — computing from weights</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>A perceptron has <strong>w₁ = 2, w₂ = −1, b = 0</strong>.</p>
+        <p>Written as x₂ = f(x₁), what is the <strong>slope</strong> of the decision boundary?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>From 2x₁ − x₂ = 0, isolate x₂: x₂ = 2x₁.<br>
+        Using the formula: slope = −w₁/w₂ = −2/(−1) = <strong>+2</strong>.<br>
+        The negative w₂ flips the sign of the ratio.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>+2</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! slope = −w₁/w₂ = −(2)/(−1) = +2.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>−2</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Close, but w₂ = −1. slope = −w₁/w₂ = −2/(−1) = +2, not −2.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>+0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ This would be the slope if the weights were swapped. slope = −w₁/w₂ = −2/(−1) = 2.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>−0.5</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Check the formula: slope = −w₁/w₂ = −(2)/(−1) = +2.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q2.3 -->
+  <question type="multichoice">
+    <name><text>Boundary — which parameter controls orientation?</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>In the slope-intercept form of the decision boundary:</p>
+        <p style="text-align:center"><em>x₂ = −(w₁/w₂) x₁ − b/w₂</em></p>
+        <p>Which parameter(s) control the <strong>orientation (slope)</strong> of the boundary?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>The slope is −w₁/w₂ — it depends only on the <strong>weights</strong>.
+        The bias b only appears in the intercept term −b/w₂ and controls position, not orientation.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>The weights w₁ and w₂</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! slope = −w₁/w₂. Changing either weight rotates the boundary.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The bias b only</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ b controls the intercept (position), not the slope. The slope is −w₁/w₂.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Both the weights and the bias equally</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ b is not involved in the slope. Only w₁ and w₂ determine orientation.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Neither — the boundary orientation is fixed at 45°</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The orientation depends entirely on the weight ratio w₁/w₂ and can take any angle.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q2.4 -->
+  <question type="multichoice">
+    <name><text>Boundary — point on the line</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>A perceptron has boundary equation <strong>4x₁ + 2x₂ − 8 = 0</strong>.</p>
+        <p>Which of the following points lies <em>exactly on</em> the decision boundary?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>A point lies on the boundary when z = 0, i.e., 4x₁ + 2x₂ − 8 = 0.<br>
+        Check (2, 0): 4(2) + 2(0) − 8 = 8 − 8 = 0 ✓<br>
+        Check (1, 1): 4 + 2 − 8 = −2 ≠ 0 ✗<br>
+        Check (3, 0): 12 − 8 = 4 ≠ 0 ✗<br>
+        Check (0, 2): 4 − 8 = −4 ≠ 0 ✗</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>(2, 0)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! 4(2) + 2(0) − 8 = 0. This point gives z = 0, so it lies on the boundary.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>(1, 1)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ 4(1) + 2(1) − 8 = −2 ≠ 0. This point is in the class 0 region (z &lt; 0).</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>(3, 0)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ 4(3) + 2(0) − 8 = 4 ≠ 0. This point is in the class 1 region (z &gt; 0).</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>(0, 2)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ 4(0) + 2(2) − 8 = −4 ≠ 0. This point is in the class 0 region.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q2.5 -->
+  <question type="multichoice">
+    <name><text>Boundary — classifying a point</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>A perceptron has <strong>w₁ = 1, w₂ = 1, b = −0.5</strong>
+        (step activation: output 1 if z ≥ 0, else 0).</p>
+        <p>What class does point <strong>(0.5, 0.5)</strong> belong to?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = 1×0.5 + 1×0.5 − 0.5 = 1 − 0.5 = <strong>+0.5</strong>.<br>
+        Since z = 0.5 ≥ 0, output = <strong>1</strong>.<br>
+        The point (0.5, 0.5) lies above the OR gate decision boundary.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Class 1 — z = +0.5 ≥ 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 0.5 + 0.5 − 0.5 = 0.5 ≥ 0 → output 1.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Class 0 — z = −0.5 &lt; 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Recompute: z = 1(0.5) + 1(0.5) − 0.5 = 1 − 0.5 = +0.5. The result is positive.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>On the boundary — z = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ z = 0.5 ≠ 0. The boundary passes through points where z = 0, i.e., x₁ + x₂ = 0.5.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Cannot be determined without knowing the activation function</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The activation function (step) is given: output 1 if z ≥ 0, else 0. z = +0.5 → output 1.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORY 3 — XOR and linear separability
+═══════════════════════════════════════════════════════════ -->
+
+  <question type="category">
+    <category>
+      <text>Session 2 / 3 - XOR and linear separability</text>
+    </category>
+  </question>
+
+  <!-- Q3.1 -->
+  <question type="multichoice">
+    <name><text>XOR — which gate cannot be implemented by a single perceptron?</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Which of the following logic functions <strong>cannot</strong> be implemented
+        by a single perceptron, regardless of the weight values chosen?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p><strong>XOR</strong> is not linearly separable.
+        Its two classes — {(0,0),(1,1)} and {(0,1),(1,0)} — sit on opposite diagonals
+        and share the same centroid (0.5, 0.5). No straight line can separate them.
+        AND, OR, and NAND are all linearly separable.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>XOR</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! XOR is the canonical non-linearly separable function. A single perceptron can only draw one straight line — not enough for XOR.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>AND</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ AND is linearly separable. The boundary w₁ = 1, w₂ = 1, b = −1.5 correctly separates all four inputs.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>OR</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ OR is linearly separable. The boundary w₁ = 1, w₂ = 1, b = −0.5 works correctly.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>NAND</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ NAND is linearly separable — it is simply NOT(AND), implementable with w₁ = −1, w₂ = −1, b = 1.5.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q3.2 -->
+  <question type="multichoice">
+    <name><text>XOR — geometric proof of impossibility</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>XOR assigns: (0,0) → 1, (1,1) → 1, (0,1) → 0, (1,0) → 0.</p>
+        <p>Which geometric argument best explains why no single perceptron can solve XOR?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>Centroid of Class 1: [(0,0)+(1,1)]/2 = (0.5, 0.5).<br>
+        Centroid of Class 0: [(0,1)+(1,0)]/2 = (0.5, 0.5).<br>
+        Both centroids coincide. Any separating halfplane must put the centroids on
+        opposite sides — impossible when they are the same point.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Both classes share the same centroid (0.5, 0.5) — no halfplane can separate them</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! Since both class centroids coincide at (0.5, 0.5), no linear boundary can place them on opposite sides.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>There are too many points — a perceptron can only handle 3 inputs at most</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ A perceptron can handle any number of points. The issue is the geometry of the classes, not the count.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The four points are too far apart for any line to separate them</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Distance is not the issue. The problem is that the two classes are interleaved on opposite diagonals.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>XOR requires a negative bias, which perceptrons do not support</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Perceptrons fully support negative bias values. The impossibility is structural, not a parameter limitation.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q3.3 -->
+  <question type="multichoice">
+    <name><text>XOR — solution with 2-layer network</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>XOR can be solved by combining two perceptrons in a first layer
+        and one perceptron in the output layer.</p>
+        <p>Which combination correctly implements XOR(x₁, x₂)?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p><strong>AND(OR(x₁,x₂), NAND(x₁,x₂))</strong>:<br>
+        OR catches "at least one = 1". NAND catches "not both = 1".<br>
+        AND of the two gives "exactly one = 1" = XOR.<br>
+        Verify: (1,1) → AND(1, 0) = 0 ✓ ; (1,0) → AND(1, 1) = 1 ✓.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>AND( OR(x₁,x₂), NAND(x₁,x₂) )</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! OR + NAND in layer 1; AND in layer 2. Verify all 4 inputs to confirm.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>NOT( AND(x₁, x₂) )</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ This is NAND, not XOR. NAND(0,0) = 1 but XOR(0,0) = 0. They differ on (0,0) and (1,1).</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>OR( AND(x₁,x₂), NOT(x₁) )</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Check (1,1): AND(1,1)=1, NOT(1)=0, OR(1,0)=1. But XOR(1,1) = 0. This fails.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>NAND( OR(x₁,x₂), AND(x₁,x₂) )</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Check (0,0): OR=0, AND=0, NAND(0,0)=1. But XOR(0,0) = 0. This fails on (0,0).</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q3.4 -->
+  <question type="multichoice">
+    <name><text>Linear separability — identifying a separable dataset</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>You try hundreds of weight combinations on a binary classification dataset.
+        Accuracy never exceeds <strong>94%</strong>, no matter what parameters you use.</p>
+        <p>What is the most likely explanation?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>If exhaustive search over all (w₁, w₂, b) cannot improve accuracy,
+        the bottleneck is the <strong>model's capacity</strong>, not its parameters.
+        The irreducible 6% error comes from class overlap that no straight line can eliminate
+        — the data is not linearly separable.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>The dataset is not linearly separable — the two classes overlap</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! When no parameter combination improves accuracy, the limit is structural. A single perceptron cannot exceed the linear separability barrier.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The learning rate is too high</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ An incorrect learning rate affects training dynamics, but the question says the weights are tested exhaustively — learning rate is not the issue here.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The bias b is missing</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Adding a bias gives more flexibility but cannot overcome non-linear separability. The problem is geometric, not a missing parameter.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The activation function is wrong</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Changing the activation function (step, sigmoid, sign) does not change which classes are linearly separable. The boundary is always a hyperplane.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORY 4 — Student classifier
+═══════════════════════════════════════════════════════════ -->
+
+  <question type="category">
+    <category>
+      <text>Session 2 / 4 - Student classifier</text>
+    </category>
+  </question>
+
+  <!-- Q4.1 -->
+  <question type="multichoice">
+    <name><text>Student classifier — computing z</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>A student pass/fail classifier uses:
+        <strong>w₁ = 2.0</strong> (hours studied),
+        <strong>w₂ = 0.5</strong> (previous score),
+        <strong>b = −60</strong>.</p>
+        <p>A student studied <strong>8 hours</strong> and has a previous score of <strong>70</strong>.
+        What is the value of <em>z</em>?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = 2.0×8 + 0.5×70 − 60 = 16 + 35 − 60 = <strong>−9</strong>.<br>
+        Common mistake: forgetting to subtract b = 60, which gives z = 51.
+        Always include the full formula.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>z = −9</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 2×8 + 0.5×70 − 60 = 16 + 35 − 60 = −9.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = +51</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ You forgot to subtract the bias. z = 16 + 35 − 60 = −9, not +51.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = +9</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Check the sign. z = 16 + 35 − 60 = −9. The bias b = −60 makes the result negative.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = −51</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ You may have computed only the bias term. Full formula: z = w₁x₁ + w₂x₂ + b = 16 + 35 − 60 = −9.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q4.2 -->
+  <question type="multichoice">
+    <name><text>Student classifier — Pass or Fail prediction</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Using the same classifier (<strong>w₁ = 2.0, w₂ = 0.5, b = −60</strong>,
+        step activation), you computed z = −9 for a student who studied 8 hours
+        with a previous score of 70.</p>
+        <p>What is the prediction?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = −9 &lt; 0 → step function gives output <strong>0 = Fail</strong>.<br>
+        Despite 8 hours of study, the previous score of 70 is not high enough
+        to overcome the large bias of −60.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Fail — z = −9 &lt; 0 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! The step function fires only when z ≥ 0. Since z = −9, output = 0 = Fail.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Pass — z = −9 &lt; 0 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The step function gives 1 only when z ≥ 0. z = −9 &lt; 0 → output = 0 = Fail.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Pass — because 8 hours of study is above average</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The perceptron does not use averages — it computes z = w·x + b and applies a threshold. z = −9 → Fail.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Cannot be determined without knowing the threshold</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The step activation is defined: output 1 if z ≥ 0, else 0. The threshold is always 0 by construction.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q4.3 -->
+  <question type="multichoice">
+    <name><text>Student classifier — predict a passing student</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Same classifier: <strong>w₁ = 2.0, w₂ = 0.5, b = −60</strong>.</p>
+        <p>A student studied <strong>20 hours</strong> and has a previous score of <strong>80</strong>.
+        What is the prediction?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>z = 2.0×20 + 0.5×80 − 60 = 40 + 40 − 60 = <strong>+20</strong>.<br>
+        z = 20 ≥ 0 → output = <strong>1 = Pass</strong>.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Pass — z = +20 ≥ 0 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! z = 2×20 + 0.5×80 − 60 = 40 + 40 − 60 = +20 ≥ 0 → Pass.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Fail — z = −20 &lt; 0 → output = 0</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Recompute: z = 2×20 + 0.5×80 − 60 = 40 + 40 − 60 = +20, which is positive.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Pass — z = +80 ≥ 0 → output = 1</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The full formula is z = w₁x₁ + w₂x₂ + b. Don't forget the bias: z = 40 + 40 − 60 = 20, not 80.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Fail — because the previous score of 80 is below 100</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The perceptron does not compare scores to 100. It computes z = w·x + b and applies a threshold. z = +20 → Pass.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q4.4 -->
+  <question type="multichoice">
+    <name><text>Student classifier — role of w₁ vs w₂</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>In the student classifier with <strong>w₁ = 2.0</strong> (hours)
+        and <strong>w₂ = 0.5</strong> (previous score):</p>
+        <p>Which feature has the <strong>greater influence</strong> on the prediction?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>The weight w₁ = 2.0 is 4 times larger than w₂ = 0.5.
+        Adding 1 extra hour of study increases z by 2.0,
+        whereas adding 1 point to the previous score only increases z by 0.5.
+        <strong>Hours studied</strong> has the greater influence.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Hours studied (w₁ = 2.0 &gt; w₂ = 0.5)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! A larger weight means the feature contributes more to z per unit. 1 extra hour → +2.0 to z vs. 1 extra point → +0.5 to z.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Previous score (because academic history matters more)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The model encodes influence via weights, not intuition. w₂ = 0.5 &lt; w₁ = 2.0, so hours studied has more weight.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Both features have equal influence</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The weights are different: w₁ = 2.0 vs w₂ = 0.5. Equal influence would require equal weights.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The bias b = −60 has the greatest influence</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The bias shifts the threshold globally but doesn't vary with input. It doesn't represent a feature's influence — only the weights do.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q4.5 -->
+  <question type="multichoice">
+    <name><text>Student classifier — vectorized computation</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>You have 3 students stored in a matrix X (shape 3×2)
+        and weight vector w = [2.0, 0.5], bias b = −60.</p>
+        <p>Which Python expression correctly computes all 3 scores at once?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p><code>z = X @ w + b</code> performs a matrix-vector product:
+        each row of X (one student) is dot-producted with w, then b is broadcast-added.
+        Result: a vector of 3 scores in a single operation.
+        This is the vectorized form of z = w₁x₁ + w₂x₂ + b.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>z = X @ w + b</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! @ is the matrix-vector product in NumPy. Each row of X is dotted with w, giving one score per student.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = w * X + b</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ * is element-wise multiplication in NumPy. It would produce a 3×2 matrix, not a vector of 3 scores.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = sum(w) + b</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ This ignores the input data X entirely. It just sums the weights and adds the bias — same result for every student.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>z = X * w.T + b</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ w.T transposes the weight vector but * still performs element-wise multiplication. Use @ for the dot product.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+</quiz>

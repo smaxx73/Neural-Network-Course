@@ -55,6 +55,9 @@ This course teaches the fundamentals of machine learning, progressing from the p
 - Implement activation functions
 - Visualize and interpret decision boundaries
 
+**Introduction:**
+[Slides](https://codimd.math.cnrs.fr/p/Kkit3NWYp#/19)
+
 **Content:**
 1. The perceptron model
    - Biological inspiration (brief)
@@ -70,6 +73,8 @@ This course teaches the fundamentals of machine learning, progressing from the p
 - Manual perceptron calculations
 - Visualize decision boundaries for 2D data
 - Experiment with different weight values
+
+Autoevaluation quiz: [Perceptron & Linear Classification Quiz](session2_perceptron_linear_classification_quizz.md)
 
 ---
 
