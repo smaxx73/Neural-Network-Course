@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<!--
+  SELF-ASSESSMENT QUIZ — Session 3: The Perceptron Learning Rule
+  Format  : Moodle XML (import via Administration > Question bank > Import)
+  Type    : Multiple choice, single answer
+  Source  : session3_perceptron_learning_quizz.md
+  Scoring : correct = 100%, wrong = 0% (no penalty)
+-->
+
+  <question type="category">
+    <category>
+      <text>Session 3 / The Perceptron Learning Rule</text>
+    </category>
+  </question>
+
+  <!-- Q1 -->
+  <question type="multichoice">
+    <name><text>Why do we need the Perceptron Learning Algorithm?</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Why do we need Rosenblatt's Perceptron Learning Algorithm?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>Manual tuning works for an AND gate (2 inputs), but is impossible for tasks
+        like email spam detection which might rely on 10,000+ word counts (features).</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>Because manual weight tuning is mathematically incorrect.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Manual tuning is not mathematically wrong — it just doesn't scale.
+        For 2 weights you can find values by trial and error; for 10,000 features it becomes impossible.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>Because manual weight tuning does not scale to real-world problems with hundreds or thousands of features.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! With only 2 or 3 features you can tune weights by hand, but real tasks
+        (spam detection, image classification) have thousands of features — automation is essential.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Because computers cannot do manual trial-and-error.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Computers can do exhaustive search — but it becomes computationally intractable
+        as the number of features grows. The real issue is scalability, not capability.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Because it is the only way to solve the XOR problem.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The perceptron learning rule cannot solve XOR — XOR is not linearly separable.
+        Multi-layer networks are needed for that.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q2 -->
+  <question type="multichoice">
+    <name><text>When does the Perceptron update its weights?</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>When does the Perceptron algorithm update its weights?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>The core philosophy of the perceptron is "learn from mistakes".
+        If y = ŷ, the error is 0 and the update equation
+        <strong>w ← w + η(y − ŷ)x</strong> changes nothing.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>After every single data point, regardless of the prediction.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ That describes gradient descent on a loss function. The perceptron rule
+        only triggers an update when the prediction is wrong.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Only when the prediction matches the target label.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ This is the opposite. When the prediction is correct (y = ŷ), the error
+        term (y − ŷ) = 0, so no update occurs.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>Only when it makes an incorrect prediction.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! The perceptron "learns from mistakes" — if y ≠ ŷ the error (y − ŷ)
+        is ±1 and the weights are adjusted. If y = ŷ nothing changes.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Only at the very end of an epoch.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The perceptron uses an <em>online</em> update rule: weights are adjusted
+        immediately after each misclassified point, not at the end of the epoch.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q3 -->
+  <question type="multichoice">
+    <name><text>Weight update rule — correct formula</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>What is the correct formula for the weight update rule?</p>
+        <p><em>(η is the learning rate, y is the actual label, ŷ is the predicted label)</em></p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>The error (y − ŷ) determines both the <strong>magnitude</strong> and the
+        <strong>direction</strong> of the update applied to the weights.
+        When y = 1 and ŷ = 0, error = +1 → weights increase.
+        When y = 0 and ŷ = 1, error = −1 → weights decrease.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>false</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>w ← w + η · (y + ŷ) · x</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The error should be a <em>difference</em> (y − ŷ), not a sum (y + ŷ).
+        Adding the labels would give the wrong direction of correction.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>w ← w + η · (y − ŷ) · x</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! (y − ŷ) is the error signal. If the prediction is wrong it is ±1,
+        which pushes the weights in the right direction by a step of size η.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>w ← w − η · (y − ŷ) · x</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The sign is flipped. Subtracting the error term would move the boundary
+        <em>away</em> from the correct solution rather than toward it.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>w ← w · η + (y − ŷ)</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ This formula multiplies the existing weights by η (shrinking them) instead
+        of adding a correction proportional to the input x. The input must appear in the update.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q4 -->
+  <question type="multichoice">
+    <name><text>Geometric effect of a weight update</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Geometrically, what happens to the decision boundary
+        when the perceptron makes a mistake?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>If a point is misclassified, the update w ← w + η(y − ŷ)x
+        effectively <strong>pulls/rotates the boundary toward</strong> that point,
+        so it may be correctly classified in the next pass.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>The decision boundary is pushed as far away from the point as possible.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The opposite happens. The update moves the boundary <em>toward</em>
+        the misclassified point to correct the error.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The data point changes its class label to match the decision boundary.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Labels are fixed — they come from the training data and never change.
+        Only the weights (and therefore the boundary) are updated.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>The decision boundary is pulled/rotated toward the misclassified point.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! Adding η(y − ŷ)x to w rotates the boundary in the direction
+        of the misclassified point, increasing the chance it ends up on the correct side.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The algorithm adds a second decision boundary.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ A single perceptron always has exactly one linear boundary.
+        Multiple boundaries require a multi-layer network.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q5 -->
+  <question type="multichoice">
+    <name><text>Effect of a learning rate that is too high</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>What happens if you set the learning rate (η) too high?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>A very high learning rate means the boundary takes massive "jumps" across the
+        feature space, overshooting the optimal solution and causing instability.
+        The algorithm may oscillate forever without converging.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>The algorithm will learn perfectly but take a very long time.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ A slow but correct outcome describes a learning rate that is too <em>low</em>,
+        not too high. A high η causes overshooting and instability.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>The updates will be too large, causing the decision boundary to oscillate unstably and potentially never converge.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! Large η → large weight updates → the boundary overshoots the
+        correct position each time and may never settle.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The perceptron will automatically transform into a multi-layer neural network.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The learning rate has no effect on the model architecture.
+        A single perceptron stays a single perceptron regardless of η.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>The weights will slowly shrink to zero.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Weights shrinking toward zero would be caused by regularization (e.g. L2),
+        not by a high learning rate. High η causes large oscillating updates.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q6 -->
+  <question type="multichoice">
+    <name><text>Perceptron Convergence Theorem — guarantee condition</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>According to the Perceptron Convergence Theorem, when is the algorithm
+        <em>guaranteed</em> to find a perfect solution in a finite number of steps?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>If a single straight line exists that perfectly separates the two classes
+        (<strong>linear separability</strong>), Rosenblatt's theorem proves the perceptron
+        will find it in a finite number of updates — regardless of the learning rate
+        or dataset size.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>When the dataset is small (less than 100 points).</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Dataset size is irrelevant to the convergence guarantee.
+        The theorem depends on the geometric structure of the data, not its quantity.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>When the data is linearly separable.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! If and only if a separating hyperplane exists, the perceptron
+        is guaranteed to find one. On non-separable data it may oscillate forever.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>When the learning rate is exactly 0.1.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The convergence theorem holds for any positive learning rate, not just η = 0.1.
+        The choice of η affects speed, not the existence of a solution.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>It is always guaranteed to converge perfectly on any dataset.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The guarantee only applies to linearly separable data. On non-separable
+        datasets (like XOR or noisy real-world data) the standard perceptron never converges.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q7 -->
+  <question type="multichoice">
+    <name><text>XOR — why the perceptron fails</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>Why does the perceptron fail to achieve 100% accuracy on the XOR gate?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>If you plot XOR on a 2D graph, you'll see it requires at least two straight lines
+        (or a curved boundary) to separate the classes. A single perceptron can only produce
+        one linear boundary — fundamentally insufficient for XOR.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="100">
+      <text>Because XOR is a non-linear problem and cannot be separated by a single straight line.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! XOR is not linearly separable — the two classes sit on opposite
+        diagonals and share the same centroid (0.5, 0.5). No single line can separate them.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Because we didn't train it for enough epochs.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Training for more epochs cannot help. The Convergence Theorem guarantees
+        the perceptron will find a solution <em>if one exists</em>. For XOR, none exists.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Because the learning rate is usually set too low for XOR.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The learning rate affects convergence speed but not the fundamental capacity
+        of the model. No learning rate can make a single line solve XOR.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>Because XOR has 3 input features instead of 2.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ XOR has exactly 2 input features (x₁ and x₂). The failure is due to
+        non-linear separability, not the number of features.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+  <!-- Q8 -->
+  <question type="multichoice">
+    <name><text>The Pocket Algorithm</text></name>
+    <questiontext format="html">
+      <text><![CDATA[
+        <p>How does the <strong>Pocket Algorithm</strong> improve upon the standard
+        perceptron when dealing with noisy, non-separable data?</p>
+      ]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text><![CDATA[
+        <p>Because non-separable data causes the standard perceptron to oscillate forever
+        (often ruining previously good boundaries), the Pocket algorithm acts as a
+        "save state": it records the weights that achieved the highest accuracy seen so far
+        and returns those at the end, rather than the final (possibly worse) weights.</p>
+      ]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <single>true</single>
+    <shuffleanswers>true</shuffleanswers>
+    <answernumbering>ABCD</answernumbering>
+
+    <answer fraction="0">
+      <text>It mathematically removes the noise from the dataset before training.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The Pocket Algorithm does not modify the dataset. It only changes
+        what the algorithm <em>keeps</em> during training — the best weights seen so far.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>It stops the training process the moment a single error is made.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ Early stopping at the first error would give very poor results on noisy data.
+        The Pocket Algorithm continues training but saves the best weights encountered.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="100">
+      <text>It keeps track of and saves the best weights seen during training, rather than returning the final weights.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>✅ Correct! The "pocket" metaphor: the best weights are kept in your pocket
+        throughout training. At the end, those saved weights (not the last ones) are returned.</p>
+      ]]></text></feedback>
+    </answer>
+    <answer fraction="0">
+      <text>It uses a curved decision boundary instead of a straight line.</text>
+      <feedback format="html"><text><![CDATA[
+        <p>❌ The Pocket Algorithm still uses a linear boundary — it is a perceptron.
+        Curved boundaries require kernel methods or neural networks.</p>
+      ]]></text></feedback>
+    </answer>
+  </question>
+
+</quiz>
