@@ -1,0 +1,190 @@
+% =============================================================
+%  preamble.tex — Reusable preamble for Neural Networks course
+%  Usage: \input{preamble} at the top of your document,
+%         after \documentclass but before \begin{document}.
+% =============================================================
+
+% --- Encoding & language ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}         % swap for [french] if needed
+
+% --- Page geometry ---
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+
+% --- Math ---
+\usepackage{amsmath, amssymb}
+
+% --- Tables ---
+\usepackage{booktabs}               % \toprule, \midrule, \bottomrule
+\usepackage{array}                  % column type extensions
+\usepackage{tabularx}               % auto-width columns
+\usepackage{multirow}               % multi-row cells
+
+% --- Colors ---
+\usepackage{xcolor}
+
+\definecolor{mainblue}{RGB}{30, 80, 160}
+\definecolor{lightblue}{RGB}{220, 235, 255}
+\definecolor{accentgray}{RGB}{245, 246, 248}
+\definecolor{darkgray}{RGB}{80, 80, 80}
+\definecolor{solutiongreen}{RGB}{20, 120, 60}
+\definecolor{lightgreen}{RGB}{220, 245, 230}
+\definecolor{warnorange}{RGB}{210, 120, 20}
+\definecolor{lightorange}{RGB}{255, 243, 220}
+
+% --- Lists ---
+\usepackage{enumitem}
+
+% --- TikZ & pgfplots ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{positioning, arrows.meta, calc, patterns}
+
+% --- Boxes: tcolorbox ---
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+% Generic exercise box (blue border, gray background)
+\tcbset{
+  exercisebox/.style={
+    enhanced,
+    colback=accentgray,
+    colframe=mainblue,
+    boxrule=0.8pt,
+    arc=4pt,
+    left=10pt, right=10pt, top=8pt, bottom=8pt,
+    fonttitle=\bfseries\color{mainblue},
+  }
+}
+
+% Solution box (green, used in answer sheets)
+\tcbset{
+  solutionbox/.style={
+    enhanced,
+    colback=lightgreen,
+    colframe=solutiongreen,
+    boxrule=0.8pt,
+    arc=4pt,
+    left=10pt, right=10pt, top=8pt, bottom=8pt,
+    fonttitle=\bfseries\color{solutiongreen},
+  }
+}
+
+% Answer highlight box (orange, for final numeric answers)
+\tcbset{
+  answerbox/.style={
+    enhanced,
+    colback=lightorange,
+    colframe=warnorange,
+    boxrule=0.7pt,
+    arc=4pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt,
+    fonttitle=\bfseries\color{warnorange},
+  }
+}
+
+% Step box (light blue border, gray background, for intermediate steps)
+\tcbset{
+  stepbox/.style={
+    enhanced,
+    colback=accentgray,
+    colframe=mainblue!40,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+  }
+}
+
+% --- Inline note / warning box (mdframed) ---
+\usepackage{mdframed}
+\newmdenv[
+  linecolor=warnorange,
+  backgroundcolor=orange!5,
+  roundcorner=4pt,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt,
+  linewidth=0.7pt
+]{notebox}
+
+% --- Section formatting ---
+\usepackage{titlesec}
+
+% Section style: "Exercise N : Title" with a blue rule underneath
+% Change the prefix via \renewcommand{\sectionprefix}{...} before \section
+\newcommand{\sectionprefix}{Exercise}
+\titleformat{\section}[block]
+  {\large\bfseries\color{mainblue}}
+  {\sectionprefix~\thesection\,:}{0.6em}{}
+  [\vspace{-0.3em}\textcolor{mainblue}{\rule{\linewidth}{0.8pt}}]
+\titlespacing{\section}{0pt}{1.6em}{0.8em}
+
+% --- Header / Footer ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Customise these three commands in your document after \input{preamble}:
+%   \renewcommand{\doccoursename}{My Course}
+%   \renewcommand{\docsessionname}{Session N — Topic}
+\newcommand{\doccoursename}{Neural Networks for Engineers}
+\newcommand{\docsessionname}{Session}
+
+\fancyhead[L]{\small\textcolor{darkgray}{\doccoursename}}
+\fancyhead[R]{\small\textcolor{darkgray}{\docsessionname}}
+\fancyfoot[C]{\small\textcolor{darkgray}{\thepage}}
+
+% --- Title block macro ---
+% Usage: \maketitleblock{Title line}{Subtitle / metadata line}{background color}
+% Examples:
+%   \maketitleblock{Session 4 — Exercises}{Mixed level | Neural Networks}{mainblue}
+%   \maketitleblock{Session 4 — Solutions}{Perceptrons and MLPs | Neural Networks}{solutiongreen}
+\newcommand{\maketitleblock}[3]{%
+  \begin{tcolorbox}[
+    enhanced,
+    colback=#3,
+    colframe=#3,
+    arc=6pt, boxrule=0pt,
+    left=16pt, right=16pt, top=12pt, bottom=12pt
+  ]
+    {\large\bfseries\color{white} #1}\\[4pt]
+    {\small\color{white!85!black} #2}
+  \end{tcolorbox}
+  \vspace{1em}
+}
+
+% --- Convenience macros ---
+
+% Blank answer field (inline underline for fill-in tables)
+\newcommand{\acell}{\rule{1.8cm}{0.4pt}}
+
+% Step-by-step computation display: \step{label}{math}
+% Example: \step{Hidden layer}{z^{(1)} = Wx + b = \ldots}
+\newcommand{\step}[2]{%
+  \noindent\textbf{#1:}\quad $#2$\par\vspace{0.3em}
+}
+
+% Neuron style for TikZ diagrams (reuse with \node[neuron])
+% Colors are overridable per layer — see examples below.
+%
+% Input neuron  : fill=lightblue,  draw=mainblue
+% Hidden neuron : fill=green!15,   draw=green!50!black
+% Output neuron : fill=orange!15,  draw=orange!70!black
+%
+% Example architecture diagram:
+%
+%   \begin{tikzpicture}[
+%     neuron/.style={circle, minimum size=1cm, thick, font=\small\bfseries},
+%     arr/.style={->, >=Stealth, thick, gray!70}
+%   ]
+%     \node[neuron, fill=lightblue,  draw=mainblue]          (x1) at (0, 1)  {$x_1$};
+%     \node[neuron, fill=green!15,   draw=green!50!black]    (h1) at (3, 1)  {$h_1$};
+%     \node[neuron, fill=orange!15,  draw=orange!70!black]   (y)  at (6, 1)  {$\hat{y}$};
+%     \draw[arr] (x1) -- (h1);
+%     \draw[arr] (h1) -- (y);
+%   \end{tikzpicture}
