@@ -228,7 +228,7 @@ $$
 
 ### c) One gradient descent step with $\eta=0.01$
 $$
-w_{	ext{new}}=3-0.01	imes 6.0=2.94
+w_{\text{new}}=3-0.01\times 6.0=2.94
 $$
 
 ### Interpretation
@@ -321,7 +321,7 @@ def linear_regression_2d(X1, X2, y, lr=0.001, n_epochs=500):
 ### Expected outcome
 For synthetic data generated from
 $$
-y = 3x_1 - 2x_2 + 5 + 	ext{noise}
+y = 3x_1 - 2x_2 + 5 + \text{noise}
 $$
 the learned parameters should be close to:
 - $w_1 \approx 3$
@@ -347,15 +347,15 @@ The notebook’s exercises build a progression:
 The central mathematical message is:
 
 $$
-	ext{Learning} = 	ext{loss function} + 	ext{gradient} + 	ext{update rule}
+\text{Learning} = \text{loss function} + \text{gradient} + \text{update rule}
 $$
 
 and the central algorithmic rule is:
 
 $$
-	heta \leftarrow 	heta - \eta \nabla L
+\theta \leftarrow \theta - \eta \nabla L
 $$
 
-where $	heta$ denotes the parameters of the model.
+where $\theta$ denotes the parameters of the model.
 
 ---
