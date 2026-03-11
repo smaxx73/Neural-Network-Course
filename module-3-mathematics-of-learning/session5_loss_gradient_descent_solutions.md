@@ -29,9 +29,9 @@ For each sample:
 | 3 | 0.1 | 0.01 |
 | 4 | -0.1 | 0.01 |
 
-\[
+$$
 \mathrm{MSE}=\frac{0.04+0.09+0.01+0.01}{4}=0.0375
-\]
+$$
 
 ### Takeaway
 MSE penalizes all errors positively and gives more weight to large errors.
@@ -41,26 +41,26 @@ MSE penalizes all errors positively and gives more weight to large errors.
 ## Exercise 4.1 — Computing Derivatives
 
 ### Goal
-Differentiate simple functions with respect to \(w\).
+Differentiate simple functions with respect to $w$.
 
 ### Questions and answers
 
-#### a) \(f(w)=3w^2+2w-1\)
-\[
+#### a) $f(w)=3w^2+2w-1$
+$$
 \frac{df}{dw}=6w+2
-\]
+$$
 
-#### b) \(f(w)=(5-2w)^2\)
+#### b) $f(w)=(5-2w)^2$
 Using the chain rule:
-\[
+$$
 \frac{df}{dw}=2(5-2w)(-2)=-4(5-2w)=8w-20
-\]
+$$
 
-#### c) \(L(w)=(y-wx)^2\)
-Treat \(x\) and \(y\) as constants:
-\[
+#### c) $L(w)=(y-wx)^2$
+Treat $x$ and $y$ as constants:
+$$
 \frac{dL}{dw}=2(y-wx)(-x)=-2x(y-wx)
-\]
+$$
 
 ### Takeaway
 This introduces the derivative structure that will later appear in gradient-based learning.
@@ -71,31 +71,31 @@ This introduces the derivative structure that will later appear in gradient-base
 
 ### Goal
 Compute the gradient of
-\[
+$$
 L(w_1,w_2)=(3-2w_1-w_2)^2
-\]
+$$
 
 ### Results
 
-#### a) Partial derivative with respect to \(w_1\)
-\[
+#### a) Partial derivative with respect to $w_1$
+$$
 \frac{\partial L}{\partial w_1}=-4(3-2w_1-w_2)
-\]
+$$
 
-#### b) Partial derivative with respect to \(w_2\)
-\[
+#### b) Partial derivative with respect to $w_2$
+$$
 \frac{\partial L}{\partial w_2}=-2(3-2w_1-w_2)
-\]
+$$
 
-#### c) Gradient at \((w_1,w_2)=(0,0)\)
-\[
+#### c) Gradient at $(w_1,w_2)=(0,0)$
+$$
 
 \nabla L(0,0)=
 \begin{bmatrix}
 -12 \\
 -6
 \end{bmatrix}
-\]
+$$
 
 ### Interpretation
 The negative components indicate that increasing both weights decreases the loss locally.
@@ -106,18 +106,18 @@ The negative components indicate that increasing both weights decreases the loss
 
 ### Goal
 Minimize
-\[
+$$
 L(w)=w^2-4w+5
-\]
+$$
 with derivative
-\[
+$$
 \frac{dL}{dw}=2w-4
-\]
-starting from \(w_0=0\) with learning rate \(\eta=0.3\).
+$$
+starting from $w_0=0$ with learning rate $\eta=0.3$.
 
 ### Iterations
 
-| Step | \(w\) | \(L(w)\) | \(dL/dw\) | New \(w\) |
+| Step | $w$ | $L(w)$ | $dL/dw$ | New $w$ |
 |---|---:|---:|---:|---:|
 | 0 | 0.000 | 5.000 | -4.000 | 1.200 |
 | 1 | 1.200 | 1.640 | -1.600 | 1.680 |
@@ -126,14 +126,14 @@ starting from \(w_0=0\) with learning rate \(\eta=0.3\).
 
 ### True minimum
 Set the derivative to zero:
-\[
+$$
 2w-4=0 \Rightarrow w=2
-\]
+$$
 
 The minimum loss is:
-\[
+$$
 L(2)=1
-\]
+$$
 
 ### Takeaway
 Gradient descent approaches the minimizer progressively when the learning rate is well chosen.
@@ -144,9 +144,9 @@ Gradient descent approaches the minimizer progressively when the learning rate i
 
 ### Goal
 Complete the missing gradient formulas for
-\[
+$$
 \hat y = w_1x+w_2
-\]
+$$
 
 ### Correct formulas
 ```python
@@ -156,20 +156,20 @@ dL_dw2 = (2 / N) * np.sum(error * 1)
 
 ### Mathematical justification
 For
-\[
+$$
 L=\frac{1}{N}\sum_{i=1}^N (y_i - w_1x_i - w_2)^2
-\]
+$$
 we obtain
-\[
+$$
 \frac{\partial L}{\partial w_1}=\frac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)x_i
-\]
+$$
 and
-\[
+$$
 \frac{\partial L}{\partial w_2}=\frac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)
-\]
+$$
 
 ### Takeaway
-The slope gradient is weighted by the input \(x_i\), while the bias gradient is just the average residual term up to scaling.
+The slope gradient is weighted by the input $x_i$, while the bias gradient is just the average residual term up to scaling.
 
 ---
 
@@ -177,9 +177,9 @@ The slope gradient is weighted by the input \(x_i\), while the bias gradient is 
 
 ### Goal
 Complete the implementation of gradient descent for the model
-\[
+$$
 \hat y = wx+b
-\]
+$$
 
 ### Correct code
 ```python
@@ -202,35 +202,35 @@ This is the canonical template for training a one-dimensional linear regression 
 ## Exercise 9.1 — Loss and Gradient by Hand
 
 ### Goal
-For the model \(\hat y = 3x\), compute the prediction table, the MSE, the gradient at \(w=3\), and one update step.
+For the model $\hat y = 3x$, compute the prediction table, the MSE, the gradient at $w=3$, and one update step.
 
 ### Prediction table
 
-| \(x\) | \(y\) | \(\hat y = 3x\) | Error \(y-\hat y\) |
+| $x$ | $y$ | $\hat y = 3x$ | Error $y-\hat y$ |
 |---|---:|---:|---:|
 | 1 | 2 | 3 | -1 |
 | 2 | 5 | 6 | -1 |
 | 3 | 7 | 9 | -2 |
 
 ### a) MSE
-\[
+$$
 \mathrm{MSE}=\frac{(-1)^2+(-1)^2+(-2)^2}{3}=\frac{6}{3}=2.0
-\]
+$$
 
-### b) Gradient at \(w=3\)
-\[
+### b) Gradient at $w=3$
+$$
 \frac{\partial L}{\partial w}
 =
 \frac{-2}{3}\left[(-1)\cdot1+(-1)\cdot2+(-2)\cdot3
 ight]
 =
 \frac{-2}{3}(-9)=6.0
-\]
+$$
 
-### c) One gradient descent step with \(\eta=0.01\)
-\[
+### c) One gradient descent step with $\eta=0.01$
+$$
 w_{	ext{new}}=3-0.01	imes 6.0=2.94
-\]
+$$
 
 ### Interpretation
 The model overpredicts, so the weight decreases.
@@ -241,14 +241,14 @@ The model overpredicts, so the weight decreases.
 
 ### Goal
 Minimize
-\[
+$$
 L(w)=(w-3)^2+1
-\]
+$$
 
 ### Missing derivative
-\[
+$$
 \frac{dL}{dw}=2(w-3)
-\]
+$$
 
 ### Missing update rule
 ```python
@@ -256,10 +256,10 @@ w = w - lr * grad
 ```
 
 ### Expected behavior
-Starting from \(w=-2\), gradient descent should move the parameter toward \(w=3\), where the minimum loss is
-\[
+Starting from $w=-2$, gradient descent should move the parameter toward $w=3$, where the minimum loss is
+$$
 L(3)=1
-\]
+$$
 
 ### Takeaway
 This is a clean example of gradient descent on a convex quadratic.
@@ -270,15 +270,15 @@ This is a clean example of gradient descent on a convex quadratic.
 
 ### Goal
 Compare several learning rates for linear regression:
-- \(0.0001\)
-- \(0.001\)
-- \(0.01\)
-- \(0.1\)
+- $0.0001$
+- $0.001$
+- $0.01$
+- $0.1$
 
 ### Main conclusions from the notebook
-1. \( \eta = 0.01 \) usually converges the fastest on the given dataset.
-2. \( \eta = 0.1 \) typically diverges or becomes unstable.
-3. The largest stable learning rate is problem-dependent; here it is around \(0.05\).
+1. $ \eta = 0.01 $ usually converges the fastest on the given dataset.
+2. $ \eta = 0.1 $ typically diverges or becomes unstable.
+3. The largest stable learning rate is problem-dependent; here it is around $0.05$.
 
 ### Interpretation
 - Too small: convergence is very slow
@@ -291,9 +291,9 @@ Compare several learning rates for linear regression:
 
 ### Goal
 Train the model
-\[
+$$
 \hat y = w_1x_1 + w_2x_2 + b
-\]
+$$
 
 ### Complete solution
 ```python
@@ -321,13 +321,13 @@ def linear_regression_2d(X1, X2, y, lr=0.001, n_epochs=500):
 
 ### Expected outcome
 For synthetic data generated from
-\[
+$$
 y = 3x_1 - 2x_2 + 5 + 	ext{noise}
-\]
+$$
 the learned parameters should be close to:
-- \(w_1 \approx 3\)
-- \(w_2 \approx -2\)
-- \(b \approx 5\)
+- $w_1 \approx 3$
+- $w_2 \approx -2$
+- $b \approx 5$
 
 ### Takeaway
 The one-feature gradient descent framework extends directly to multiple features.
@@ -347,17 +347,17 @@ The notebook’s exercises build a progression:
 
 The central mathematical message is:
 
-\[
+$$
 	ext{Learning} = 	ext{loss function} + 	ext{gradient} + 	ext{update rule}
-\]
+$$
 
 and the central algorithmic rule is:
 
-\[
+$$
 	heta \leftarrow 	heta - \eta 
 abla L
-\]
+$$
 
-where \(	heta\) denotes the parameters of the model.
+where $	heta$ denotes the parameters of the model.
 
 ---
