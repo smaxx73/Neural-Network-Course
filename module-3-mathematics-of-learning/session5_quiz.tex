@@ -1,0 +1,125 @@
+\documentclass[11pt, a4paper]{article}
+\input{preamble}
+
+\renewcommand{\doccoursename}{Neural Networks for Engineers}
+\renewcommand{\docsessionname}{Session 5 — Quiz}
+
+\begin{document}
+
+\maketitleblock{Session 5 — Quiz}{Loss Functions \& Gradient Descent \quad|\quad 10 questions}{mainblue}
+
+\renewcommand{\sectionprefix}{Question}
+
+% ------------------------------------------------------------------
+\section{MSE by Hand}
+
+A model produces the following predictions. Compute the MSE.
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Sample & True $y$ & Predicted $\hat{y}$ & Squared Error \\
+\midrule
+1 & 2.0 & 2.5 & \acell \\
+2 & 4.0 & 3.0 & \acell \\
+3 & 1.0 & 1.5 & \acell \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+\textbf{MSE} $=$ \acell
+
+% ------------------------------------------------------------------
+\section{Why Squaring?}
+
+Why do we square the errors in MSE rather than simply averaging them?
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Derivative of a Loss}
+
+Given $L(w) = (4 - 2w)^2$, compute $\dfrac{dL}{dw}$.
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Gradient Direction}
+
+You are at $w = 0$ on the loss curve of Question~3. The gradient is negative.
+Should you \textbf{increase} or \textbf{decrease} $w$ to reduce the loss? Explain why.
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Manual Gradient Descent}
+
+Perform \textbf{2 steps} of gradient descent to minimize $L(w) = w^2 - 6w + 10$,
+starting at $w_0 = 0$ with learning rate $\eta = 0.2$.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+Step & $w$ & $L(w)$ & $\dfrac{dL}{dw}$ & New $w$ \\
+\midrule
+0 & 0 & \acell & \acell & \acell \\[1.2em]
+1 & \acell & \acell & \acell & \acell \\[1.2em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Loss Landscape}
+
+What is the difference between a \textbf{local minimum} and a \textbf{global minimum}
+on a loss landscape? For which type of model is the MSE loss guaranteed to have
+only one minimum?
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{Partial Derivatives}
+
+Given $L(w_1, w_2) = (2 - w_1 - 3w_2)^2$, compute the gradient $\nabla L$
+and evaluate it at $(w_1, w_2) = (1,\, 0)$.
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{SGD Variants}
+
+Complete the table.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lccX}
+\toprule
+Variant & Batch size & Gradient estimate & Typical use case \\
+\midrule
+Full-batch GD   & $N$        & \acell & \acell \\[1em]
+Mini-batch SGD  & $B \ll N$  & \acell & \acell \\[1em]
+Stochastic GD   & \acell     & \acell & \acell \\[1em]
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Diverging Loss}
+
+A colleague trains a linear regression model and observes that the loss
+\textbf{increases} over the first few epochs. What is the most likely cause,
+and how would you fix it?
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{Bridge to Neural Networks}
+
+The notebook argues that gradient descent on linear regression and on a
+multi-layer neural network follow the \textbf{same recipe}, with one key
+difference. What is that difference, and what technique (covered in Session~6)
+addresses it?
+
+\vspace{6em}
+
+\end{document}

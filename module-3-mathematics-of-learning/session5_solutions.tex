@@ -1,0 +1,165 @@
+\documentclass[11pt, a4paper]{article}
+\input{preamble}
+
+\renewcommand{\doccoursename}{Neural Networks for Engineers}
+\renewcommand{\docsessionname}{Session 5 — Solutions}
+
+\begin{document}
+
+\maketitleblock{Session 5 — Solutions}{Loss Functions \& Gradient Descent \quad|\quad Instructor copy}{solutiongreen}
+
+\renewcommand{\sectionprefix}{Question}
+
+% ------------------------------------------------------------------
+\section{MSE by Hand}
+
+\begin{tcolorbox}[solutionbox]
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Sample & True $y$ & Predicted $\hat{y}$ & Squared Error \\
+\midrule
+1 & 2.0 & 2.5 & $0.25$ \\
+2 & 4.0 & 3.0 & $1.00$ \\
+3 & 1.0 & 1.5 & $0.25$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[answerbox]
+$$\text{MSE} = \frac{0.25 + 1.00 + 0.25}{3} = \frac{1.50}{3} = 0.5$$
+\end{tcolorbox}
+
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Why Squaring?}
+
+\begin{tcolorbox}[solutionbox]
+Without squaring, positive and negative errors cancel each other out — a model
+that over-predicts by 5 and under-predicts by 5 would appear to have zero error.
+Squaring makes all contributions positive and penalises large errors more heavily
+(quadratic growth), which drives the optimiser to reduce the worst predictions first.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Derivative of a Loss}
+
+\begin{tcolorbox}[solutionbox]
+Let $u = 4 - 2w$, so $L = u^2$. By the chain rule:
+$$\frac{dL}{dw} = 2u \cdot \frac{du}{dw} = 2(4 - 2w)(-2)$$
+\begin{tcolorbox}[answerbox]
+$$\frac{dL}{dw} = -4(4 - 2w) = 8w - 16$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Gradient Direction}
+
+\begin{tcolorbox}[solutionbox]
+We should \textbf{increase} $w$. The gradient descent update rule is:
+$$w \leftarrow w - \eta\,\frac{dL}{dw}$$
+A negative gradient means subtracting a negative number, i.e.\ $w$ increases.
+Intuitively, the loss curve slopes downward to the right at $w=0$, so moving
+right (increasing $w$) reduces the loss.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Manual Gradient Descent}
+
+\begin{tcolorbox}[solutionbox]
+$\dfrac{dL}{dw} = 2w - 6$, true minimum at $w^* = 3$ (where $L(3) = 1$).
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+Step & $w$ & $L(w)$ & $\dfrac{dL}{dw}$ & New $w$ \\
+\midrule
+0 & $0.000$ & $10.000$ & $-6.000$ & $0 - 0.2 \times (-6) = 1.200$ \\[0.8em]
+1 & $1.200$ & $4.840$  & $-3.600$ & $1.2 - 0.2 \times (-3.6) = 1.920$ \\[0.8em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+$w$ is converging toward $3.0$ $\checkmark$
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Loss Landscape}
+
+\begin{tcolorbox}[solutionbox]
+A \textbf{local minimum} is a point where the loss is lower than all nearby points,
+but not necessarily the lowest overall. A \textbf{global minimum} is the single
+lowest point on the entire loss surface.
+
+For \textbf{linear models with MSE loss}, the loss surface is a convex paraboloid
+(a smooth bowl), so there is exactly one minimum, which is both local and global.
+Non-linear models such as MLPs can have multiple local minima and saddle points.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Partial Derivatives}
+
+\begin{tcolorbox}[solutionbox]
+Let $u = 2 - w_1 - 3w_2$, so $L = u^2$.
+
+\begin{align*}
+\frac{\partial L}{\partial w_1} &= 2u \cdot (-1) = -2(2 - w_1 - 3w_2) \\[0.4em]
+\frac{\partial L}{\partial w_2} &= 2u \cdot (-3) = -6(2 - w_1 - 3w_2)
+\end{align*}
+
+At $(w_1, w_2) = (1, 0)$: $u = 2 - 1 - 0 = 1$.
+
+\begin{tcolorbox}[answerbox]
+$$\nabla L\big|_{(1,\,0)} = \begin{bmatrix} -2 \\ -6 \end{bmatrix}$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{SGD Variants}
+
+\begin{tcolorbox}[solutionbox]
+\begin{center}
+\begin{tabularx}{\linewidth}{lccX}
+\toprule
+Variant & Batch size & Gradient estimate & Typical use case \\
+\midrule
+Full-batch GD  & $N$       & Exact  & Small datasets; convex problems \\[0.5em]
+Mini-batch SGD & $B \ll N$ & Approximate, low noise & Standard practice for deep learning \\[0.5em]
+Stochastic GD  & $1$       & Very noisy & Online learning; very large datasets \\[0.5em]
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Diverging Loss}
+
+\begin{tcolorbox}[solutionbox]
+The most likely cause is a \textbf{learning rate that is too large}. With an
+oversized $\eta$, each update overshoots the minimum — the weights jump past it
+and land on the other side at a higher loss value, which compounds with each step.
+
+\textbf{Fix:} reduce the learning rate (e.g.\ divide by 10) and restart training.
+A useful diagnostic is to plot the loss curve on a log scale; divergence appears
+as a rapid upward trend rather than a plateau.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Bridge to Neural Networks}
+
+\begin{tcolorbox}[solutionbox]
+The four-step recipe (forward pass $\to$ loss $\to$ gradients $\to$ weight update)
+is identical. The key difference is \textbf{step 3 — computing gradients for hidden
+layers}. In linear regression the gradient is a single, direct derivative. In an
+MLP, weights in early layers affect the loss \emph{indirectly}, through the hidden
+activations:
+
+$$\frac{\partial L}{\partial W^{(1)}} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial h} \cdot \frac{\partial h}{\partial W^{(1)}}$$
+
+This requires the \textbf{chain rule} applied layer by layer, which is exactly what
+\textbf{backpropagation} (Session~6) implements efficiently.
+\end{tcolorbox}
+
+\end{document}
