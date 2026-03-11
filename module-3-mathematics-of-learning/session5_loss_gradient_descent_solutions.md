@@ -221,8 +221,7 @@ $$
 $$
 \frac{\partial L}{\partial w}
 =
-\frac{-2}{3}\left[(-1)\cdot1+(-1)\cdot2+(-2)\cdot3
-ight]
+\frac{-2}{3}\left[(-1)\cdot1+(-1)\cdot2+(-2)\cdot3\right]
 =
 \frac{-2}{3}(-9)=6.0
 $$
@@ -354,8 +353,7 @@ $$
 and the central algorithmic rule is:
 
 $$
-	heta \leftarrow 	heta - \eta 
-abla L
+	heta \leftarrow 	heta - \eta \nabla L
 $$
 
 where $	heta$ denotes the parameters of the model.
