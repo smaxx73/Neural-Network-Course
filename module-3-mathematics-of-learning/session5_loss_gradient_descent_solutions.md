@@ -30,7 +30,7 @@ For each sample:
 | 4 | -0.1 | 0.01 |
 
 \[
-\mathrm{MSE}=rac{0.04+0.09+0.01+0.01}{4}=0.0375
+\mathrm{MSE}=\frac{0.04+0.09+0.01+0.01}{4}=0.0375
 \]
 
 ### Takeaway
@@ -47,19 +47,19 @@ Differentiate simple functions with respect to \(w\).
 
 #### a) \(f(w)=3w^2+2w-1\)
 \[
-rac{df}{dw}=6w+2
+\frac{df}{dw}=6w+2
 \]
 
 #### b) \(f(w)=(5-2w)^2\)
 Using the chain rule:
 \[
-rac{df}{dw}=2(5-2w)(-2)=-4(5-2w)=8w-20
+\frac{df}{dw}=2(5-2w)(-2)=-4(5-2w)=8w-20
 \]
 
 #### c) \(L(w)=(y-wx)^2\)
 Treat \(x\) and \(y\) as constants:
 \[
-rac{dL}{dw}=2(y-wx)(-x)=-2x(y-wx)
+\frac{dL}{dw}=2(y-wx)(-x)=-2x(y-wx)
 \]
 
 ### Takeaway
@@ -79,19 +79,19 @@ L(w_1,w_2)=(3-2w_1-w_2)^2
 
 #### a) Partial derivative with respect to \(w_1\)
 \[
-rac{\partial L}{\partial w_1}=-4(3-2w_1-w_2)
+\frac{\partial L}{\partial w_1}=-4(3-2w_1-w_2)
 \]
 
 #### b) Partial derivative with respect to \(w_2\)
 \[
-rac{\partial L}{\partial w_2}=-2(3-2w_1-w_2)
+\frac{\partial L}{\partial w_2}=-2(3-2w_1-w_2)
 \]
 
 #### c) Gradient at \((w_1,w_2)=(0,0)\)
 \[
 
-abla L(0,0)=
-egin{bmatrix}
+\nabla L(0,0)=
+\begin{bmatrix}
 -12 \\
 -6
 \end{bmatrix}
@@ -111,7 +111,7 @@ L(w)=w^2-4w+5
 \]
 with derivative
 \[
-rac{dL}{dw}=2w-4
+\frac{dL}{dw}=2w-4
 \]
 starting from \(w_0=0\) with learning rate \(\eta=0.3\).
 
@@ -157,15 +157,15 @@ dL_dw2 = (2 / N) * np.sum(error * 1)
 ### Mathematical justification
 For
 \[
-L=rac{1}{N}\sum_{i=1}^N (y_i - w_1x_i - w_2)^2
+L=\frac{1}{N}\sum_{i=1}^N (y_i - w_1x_i - w_2)^2
 \]
 we obtain
 \[
-rac{\partial L}{\partial w_1}=rac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)x_i
+\frac{\partial L}{\partial w_1}=\frac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)x_i
 \]
 and
 \[
-rac{\partial L}{\partial w_2}=rac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)
+\frac{\partial L}{\partial w_2}=\frac{2}{N}\sum_{i=1}^N(\hat y_i-y_i)
 \]
 
 ### Takeaway
@@ -214,16 +214,17 @@ For the model \(\hat y = 3x\), compute the prediction table, the MSE, the gradie
 
 ### a) MSE
 \[
-\mathrm{MSE}=rac{(-1)^2+(-1)^2+(-2)^2}{3}=rac{6}{3}=2.0
+\mathrm{MSE}=\frac{(-1)^2+(-1)^2+(-2)^2}{3}=\frac{6}{3}=2.0
 \]
 
 ### b) Gradient at \(w=3\)
 \[
-rac{\partial L}{\partial w}
+\frac{\partial L}{\partial w}
 =
-rac{-2}{3}\left[(-1)\cdot1+(-1)\cdot2+(-2)\cdot3ight]
+\frac{-2}{3}\left[(-1)\cdot1+(-1)\cdot2+(-2)\cdot3
+ight]
 =
-rac{-2}{3}(-9)=6.0
+\frac{-2}{3}(-9)=6.0
 \]
 
 ### c) One gradient descent step with \(\eta=0.01\)
@@ -246,7 +247,7 @@ L(w)=(w-3)^2+1
 
 ### Missing derivative
 \[
-rac{dL}{dw}=2(w-3)
+\frac{dL}{dw}=2(w-3)
 \]
 
 ### Missing update rule
@@ -324,9 +325,9 @@ For synthetic data generated from
 y = 3x_1 - 2x_2 + 5 + 	ext{noise}
 \]
 the learned parameters should be close to:
-- \(w_1 pprox 3\)
-- \(w_2 pprox -2\)
-- \(b pprox 5\)
+- \(w_1 \approx 3\)
+- \(w_2 \approx -2\)
+- \(b \approx 5\)
 
 ### Takeaway
 The one-feature gradient descent framework extends directly to multiple features.
