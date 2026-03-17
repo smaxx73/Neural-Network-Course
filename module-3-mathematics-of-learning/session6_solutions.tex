@@ -1,0 +1,323 @@
+\documentclass[11pt, a4paper]{article}
+\input{preamble}
+
+\renewcommand{\doccoursename}{Neural Networks for Engineers}
+\renewcommand{\docsessionname}{Session 6 — Solutions}
+
+\begin{document}
+
+\maketitleblock{Session 6 — Solutions}{Backpropagation \& Chain Rule \quad|\quad Instructor copy}{solutiongreen}
+
+\renewcommand{\sectionprefix}{Question}
+
+% ------------------------------------------------------------------
+\section{MSE by Hand}
+
+\begin{tcolorbox}[solutionbox]
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Sample & True $y$ & Predicted $\hat{y}$ & Squared Error \\
+\midrule
+1 & 2.0 & 2.5 & $0.25$ \\
+2 & 4.0 & 3.0 & $1.00$ \\
+3 & 1.0 & 1.5 & $0.25$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[answerbox]
+$$\text{MSE} = \frac{0.25 + 1.00 + 0.25}{3} = \frac{1.50}{3} = 0.5$$
+\end{tcolorbox}
+
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Why Squaring?}
+
+\begin{tcolorbox}[solutionbox]
+Without squaring, positive and negative errors cancel each other out — a model
+that over-predicts by 5 and under-predicts by 5 would appear to have zero error.
+Squaring makes all contributions positive and penalises large errors more heavily
+(quadratic growth), which drives the optimiser to reduce the worst predictions first.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Derivative of a Loss}
+
+\begin{tcolorbox}[solutionbox]
+Let $u = 4 - 2w$, so $L = u^2$. By the chain rule:
+$$\frac{dL}{dw} = 2u \cdot \frac{du}{dw} = 2(4 - 2w)(-2)$$
+\begin{tcolorbox}[answerbox]
+$$\frac{dL}{dw} = -4(4 - 2w) = 8w - 16$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Gradient Direction}
+
+\begin{tcolorbox}[solutionbox]
+We should \textbf{increase} $w$. The gradient descent update rule is:
+$$w \leftarrow w - \eta\,\frac{dL}{dw}$$
+A negative gradient means subtracting a negative number, i.e.\ $w$ increases.
+Intuitively, the loss curve slopes downward to the right at $w=0$, so moving
+right (increasing $w$) reduces the loss.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Manual Gradient Descent}
+
+\begin{tcolorbox}[solutionbox]
+$\dfrac{dL}{dw} = 2w - 6$, true minimum at $w^* = 3$ (where $L(3) = 1$).
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+Step & $w$ & $L(w)$ & $\dfrac{dL}{dw}$ & New $w$ \\
+\midrule
+0 & $0.000$ & $10.000$ & $-6.000$ & $0 - 0.2 \times (-6) = 1.200$ \\[0.8em]
+1 & $1.200$ & $4.840$  & $-3.600$ & $1.2 - 0.2 \times (-3.6) = 1.920$ \\[0.8em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+$w$ is converging toward $3.0$ $\checkmark$
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Loss Landscape}
+
+\begin{tcolorbox}[solutionbox]
+A \textbf{local minimum} is a point where the loss is lower than all nearby points,
+but not necessarily the lowest overall. A \textbf{global minimum} is the single
+lowest point on the entire loss surface.
+
+For \textbf{linear models with MSE loss}, the loss surface is a convex paraboloid
+(a smooth bowl), so there is exactly one minimum, which is both local and global.
+Non-linear models such as MLPs can have multiple local minima and saddle points.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Partial Derivatives}
+
+\begin{tcolorbox}[solutionbox]
+Let $u = 2 - w_1 - 3w_2$, so $L = u^2$.
+
+\begin{align*}
+\frac{\partial L}{\partial w_1} &= 2u \cdot (-1) = -2(2 - w_1 - 3w_2) \\[0.4em]
+\frac{\partial L}{\partial w_2} &= 2u \cdot (-3) = -6(2 - w_1 - 3w_2)
+\end{align*}
+
+At $(w_1, w_2) = (1, 0)$: $u = 2 - 1 - 0 = 1$.
+
+\begin{tcolorbox}[answerbox]
+$$\nabla L\big|_{(1,\,0)} = \begin{bmatrix} -2 \\ -6 \end{bmatrix}$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{SGD Variants}
+
+\begin{tcolorbox}[solutionbox]
+\begin{center}
+\begin{tabularx}{\linewidth}{lccX}
+\toprule
+Variant & Batch size & Gradient estimate & Typical use case \\
+\midrule
+Full-batch GD  & $N$       & Exact  & Small datasets; convex problems \\[0.5em]
+Mini-batch SGD & $B \ll N$ & Approximate, low noise & Standard practice for deep learning \\[0.5em]
+Stochastic GD  & $1$       & Very noisy & Online learning; very large datasets \\[0.5em]
+\bottomrule
+\end{tabularx}
+\end{center}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Diverging Loss}
+
+\begin{tcolorbox}[solutionbox]
+The most likely cause is a \textbf{learning rate that is too large}. With an
+oversized $\eta$, each update overshoots the minimum — the weights jump past it
+and land on the other side at a higher loss value, which compounds with each step.
+
+\textbf{Fix:} reduce the learning rate (e.g.\ divide by 10) and restart training.
+A useful diagnostic is to plot the loss curve on a log scale; divergence appears
+as a rapid upward trend rather than a plateau.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Bridge to Neural Networks}
+
+\begin{tcolorbox}[solutionbox]
+The four-step recipe (forward pass $\to$ loss $\to$ gradients $\to$ weight update)
+is identical. The key difference is \textbf{step 3 — computing gradients for hidden
+layers}. In linear regression the gradient is a single, direct derivative. In an
+MLP, weights in early layers affect the loss \emph{indirectly}, through the hidden
+activations:
+
+$$\frac{\partial L}{\partial W^{(1)}} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial h} \cdot \frac{\partial h}{\partial W^{(1)}}$$
+
+This requires the \textbf{chain rule} applied layer by layer, which is exactly what
+\textbf{backpropagation} (Session~6) implements efficiently.
+\end{tcolorbox}
+
+% ==================================================================
+% SESSION 6 — BACKPROPAGATION
+% ==================================================================
+
+% ------------------------------------------------------------------
+\section{Chain Rule — Symbolic Derivative}
+
+\begin{tcolorbox}[solutionbox]
+Let $z = 3x - 2$, so $y = \sigma(z)$. By the chain rule:
+$$\frac{dy}{dx} = \frac{d\sigma}{dz} \cdot \frac{dz}{dx} = \sigma(z)\bigl(1 - \sigma(z)\bigr) \cdot 3$$
+
+\begin{tcolorbox}[answerbox]
+$$\frac{dy}{dx} = 3\,\sigma(3x-2)\bigl(1 - \sigma(3x-2)\bigr)$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Chain Rule — Numerical}
+
+\begin{tcolorbox}[solutionbox]
+Let $u = 2x + 1$, so $y = u^3$. By the chain rule:
+$$\frac{dy}{dx} = 3u^2 \cdot \frac{du}{dx} = 3(2x+1)^2 \cdot 2 = 6(2x+1)^2$$
+
+At $x = 1$: $u = 3$, so:
+
+\begin{tcolorbox}[answerbox]
+$$\frac{dy}{dx}\bigg|_{x=1} = 6 \times 3^2 = 54$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Forward Pass by Hand}
+\label{sec:forward-pass-by-hand}
+
+\begin{tcolorbox}[solutionbox]
+Parameters: $w = 0.8$, $b = -0.3$, $x = 1.5$, $y = 1$.
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Step & Formula & Expression & Value \\
+\midrule
+1 & $z = wx + b$ & $0.8 \times 1.5 - 0.3$ & $0.9$ \\[0.8em]
+2 & $\hat{y} = \sigma(z)$ & $\sigma(0.9) = \dfrac{1}{1+e^{-0.9}}$ & $\approx 0.7109$ \\[1em]
+3 & $e = \hat{y} - y$ & $0.7109 - 1$ & $\approx -0.2891$ \\[0.8em]
+4 & $L = e^2$ & $(-0.2891)^2$ & $\approx 0.0836$ \\[0.8em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[answerbox]
+$z = 0.9$,\quad $\hat{y} \approx 0.7109$,\quad $L \approx 0.0836$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Backward Pass by Hand}
+
+\begin{tcolorbox}[solutionbox]
+Using the values from Question~\ref{sec:forward-pass-by-hand}:
+$e \approx -0.2891$, $\hat{y} \approx 0.7109$, $z = 0.9$, $x = 1.5$.
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Step & Gradient & Value \\
+\midrule
+1 & $\dfrac{\partial L}{\partial e} = 2e$
+  & $2 \times (-0.2891) \approx -0.5782$ \\[1.2em]
+2 & $\dfrac{\partial L}{\partial \hat{y}} = \dfrac{\partial L}{\partial e} \cdot 1$
+  & $\approx -0.5782$ \\[1.2em]
+3 & $\dfrac{\partial L}{\partial z} = \dfrac{\partial L}{\partial \hat{y}} \cdot \sigma(z)(1-\sigma(z))$
+  & $-0.5782 \times 0.7109 \times 0.2891 \approx -0.1189$ \\[1.2em]
+4 & $\dfrac{\partial L}{\partial w} = \dfrac{\partial L}{\partial z} \cdot x$
+  & $-0.1189 \times 1.5 \approx -0.1784$ \\[1.2em]
+5 & $\dfrac{\partial L}{\partial b} = \dfrac{\partial L}{\partial z} \cdot 1$
+  & $\approx -0.1189$ \\[1.2em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+Both gradients are \textbf{negative}: gradient descent will \emph{increase} $w$ and $b$,
+pushing $\hat{y}$ closer to $1$. $\checkmark$
+
+\medskip
+\textbf{Weight update} with $\eta = 1.0$:
+\begin{align*}
+w &\leftarrow 0.8 - 1.0 \times (-0.1784) = 0.9784 \\
+b &\leftarrow -0.3 - 1.0 \times (-0.1189) = -0.1811
+\end{align*}
+
+\begin{tcolorbox}[answerbox]
+$w_{\text{new}} \approx 0.9784$,\quad $b_{\text{new}} \approx -0.1811$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Error Signal $\delta$}
+
+\begin{tcolorbox}[solutionbox]
+Given $\delta^{(2)} = -0.20$,\;
+$W^{(2)} = [0.6,\; {-0.4}]^T$,\;
+$z^{(1)} = [0.6,\; {-0.3}]^T$.
+
+\medskip
+\textbf{(a)} Pull the error back through the weights:
+\[
+  (W^{(2)})^T\,\delta^{(2)}
+  = \begin{bmatrix} 0.6 \\ -0.4 \end{bmatrix} \times (-0.20)
+  = \begin{bmatrix} -0.120 \\ 0.080 \end{bmatrix}
+\]
+
+\medskip
+\textbf{(b)} Sigmoid derivative at each hidden pre-activation:
+\begin{align*}
+\sigma(0.6)  &\approx 0.6457, & \sigma'(0.6)  &= 0.6457 \times 0.3543 \approx 0.2288 \\
+\sigma(-0.3) &\approx 0.4256, & \sigma'(-0.3) &= 0.4256 \times 0.5744 \approx 0.2445
+\end{align*}
+\[
+  \sigma'(z^{(1)}) \approx \begin{bmatrix} 0.2288 \\ 0.2445 \end{bmatrix}
+\]
+
+\medskip
+\textbf{(c)} Element-wise product:
+\[
+  \delta^{(1)}
+  = \begin{bmatrix} -0.120 \\ 0.080 \end{bmatrix}
+    \odot
+    \begin{bmatrix} 0.2288 \\ 0.2445 \end{bmatrix}
+\]
+
+\begin{tcolorbox}[answerbox]
+$$\delta^{(1)} \approx \begin{bmatrix} -0.0275 \\ 0.0196 \end{bmatrix}$$
+\end{tcolorbox}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------
+\section{Vanishing Gradients — Conceptual}
+
+\begin{tcolorbox}[solutionbox]
+\textbf{(a)} At each layer the backward-propagating gradient is multiplied by
+$\sigma'(z) \leq 0.25$. After $L$ sigmoid layers the gradient is scaled by a
+factor of at most $0.25^L$, which shrinks \emph{exponentially} toward zero.
+Early-layer weights therefore receive gradients so small that they effectively
+stop learning — this is the \textbf{vanishing gradient problem}.
+
+\medskip
+\textbf{(b)} The \textbf{Rectified Linear Unit (ReLU)} was introduced to address this:
+\[
+  \operatorname{ReLU}(z) = \max(0,\, z),
+  \qquad
+  \operatorname{ReLU}'(z) =
+  \begin{cases} 1 & z > 0 \\ 0 & z \leq 0 \end{cases}
+\]
+When a neuron is active ($z > 0$), the derivative is $1$, so the gradient passes
+through unchanged and does not shrink as it flows backward through ReLU layers.
+\end{tcolorbox}
+
+\end{document}

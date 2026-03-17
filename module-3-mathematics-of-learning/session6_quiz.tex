@@ -1,0 +1,236 @@
+\documentclass[11pt, a4paper]{article}
+\input{../tex_preambule/preamble}
+
+\renewcommand{\doccoursename}{Neural Networks for Engineers}
+\renewcommand{\docsessionname}{Session 6 — Quiz}
+
+\begin{document}
+
+\maketitleblock{Session 6 — Quiz}{Backpropagation \& Chain Rule \quad|\quad 16 questions}{mainblue}
+
+\renewcommand{\sectionprefix}{Question}
+
+% ------------------------------------------------------------------
+\section{MSE by Hand}
+
+A model produces the following predictions. Compute the MSE.
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Sample & True $y$ & Predicted $\hat{y}$ & Squared Error \\
+\midrule
+1 & 2.0 & 2.5 & \acell \\
+2 & 4.0 & 3.0 & \acell \\
+3 & 1.0 & 1.5 & \acell \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.5em}
+\textbf{MSE} $=$ \acell
+
+% ------------------------------------------------------------------
+\section{Why Squaring?}
+
+Why do we square the errors in MSE rather than simply averaging them?
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Derivative of a Loss}
+
+Given $L(w) = (4 - 2w)^2$, compute $\dfrac{dL}{dw}$.
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Gradient Direction}
+
+You are at $w = 0$ on the loss curve of Question~3. The gradient is negative.
+Should you \textbf{increase} or \textbf{decrease} $w$ to reduce the loss? Explain why.
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Manual Gradient Descent}
+
+Perform \textbf{2 steps} of gradient descent to minimize $L(w) = w^2 - 6w + 10$,
+starting at $w_0 = 0$ with learning rate $\eta = 0.2$.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+Step & $w$ & $L(w)$ & $\dfrac{dL}{dw}$ & New $w$ \\
+\midrule
+0 & 0 & \acell & \acell & \acell \\[1.2em]
+1 & \acell & \acell & \acell & \acell \\[1.2em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Loss Landscape}
+
+What is the difference between a \textbf{local minimum} and a \textbf{global minimum}
+on a loss landscape? For which type of model is the MSE loss guaranteed to have
+only one minimum?
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{Partial Derivatives}
+
+Given $L(w_1, w_2) = (2 - w_1 - 3w_2)^2$, compute the gradient $\nabla L$
+and evaluate it at $(w_1, w_2) = (1,\, 0)$.
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{SGD Variants}
+
+Complete the table.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lccX}
+\toprule
+Variant & Batch size & Gradient estimate & Typical use case \\
+\midrule
+Full-batch GD   & $N$        & \acell & \acell \\[1em]
+Mini-batch SGD  & $B \ll N$  & \acell & \acell \\[1em]
+Stochastic GD   & \acell     & \acell & \acell \\[1em]
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Diverging Loss}
+
+A colleague trains a linear regression model and observes that the loss
+\textbf{increases} over the first few epochs. What is the most likely cause,
+and how would you fix it?
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{Bridge to Neural Networks}
+
+The notebook argues that gradient descent on linear regression and on a
+multi-layer neural network follow the \textbf{same recipe}, with one key
+difference. What is that difference, and what technique (covered in Session~6)
+addresses it?
+
+\vspace{6em}
+
+% ==================================================================
+% SESSION 6 — BACKPROPAGATION
+% ==================================================================
+
+% ------------------------------------------------------------------
+\section{Chain Rule — Symbolic Derivative}
+
+Let $y = \sigma(3x - 2)$, where $\sigma$ denotes the sigmoid function
+and $\dfrac{d\sigma}{dz} = \sigma(z)\bigl(1 - \sigma(z)\bigr)$.
+
+Compute $\dfrac{dy}{dx}$.
+
+\vspace{6em}
+
+% ------------------------------------------------------------------
+\section{Chain Rule — Numerical}
+
+Given the composite function $y = (2x + 1)^3$, evaluate
+$\dfrac{dy}{dx}$ at $x = 1$.
+
+\vspace{5em}
+
+% ------------------------------------------------------------------
+\section{Forward Pass by Hand}
+\label{sec:forward-pass-by-hand}
+
+A single neuron has weight $w = 0.8$, bias $b = -0.3$,
+and uses a sigmoid activation.
+Given input $x = 1.5$ and target $y = 1$:
+
+\begin{enumerate}[label=\alph*.]
+  \item Fill in the forward-pass table.
+  \item Compute the MSE loss $L = (\hat{y} - y)^2$.
+\end{enumerate}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Step & Formula & Expression & Value \\
+\midrule
+1 & $z = wx + b$ & $0.8 \times 1.5 - 0.3$ & \acell \\[0.8em]
+2 & $\hat{y} = \sigma(z)$ & $\sigma(\;\acell\;)$ & \acell \\[0.8em]
+3 & $e = \hat{y} - y$ & & \acell \\[0.8em]
+4 & $L = e^2$ & & \acell \\[0.8em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Backward Pass by Hand}
+
+Continue from Question~\ref{sec:forward-pass-by-hand} (use the values you
+computed).
+Fill in the backward-pass table to find the gradients
+$\dfrac{\partial L}{\partial w}$ and $\dfrac{\partial L}{\partial b}$.
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Step & Gradient & Value \\
+\midrule
+1 & $\dfrac{\partial L}{\partial e} = 2e$ & \acell \\[1.2em]
+2 & $\dfrac{\partial L}{\partial \hat{y}} = \dfrac{\partial L}{\partial e} \cdot 1$ & \acell \\[1.2em]
+3 & $\dfrac{\partial L}{\partial z} = \dfrac{\partial L}{\partial \hat{y}} \cdot \sigma(z)\bigl(1-\sigma(z)\bigr)$ & \acell \\[1.2em]
+4 & $\dfrac{\partial L}{\partial w} = \dfrac{\partial L}{\partial z} \cdot x$ & \acell \\[1.2em]
+5 & $\dfrac{\partial L}{\partial b} = \dfrac{\partial L}{\partial z} \cdot 1$ & \acell \\[1.2em]
+\bottomrule
+\end{tabular}
+\end{center}
+
+After one gradient-descent step with $\eta = 1.0$, what are the updated
+values of $w$ and $b$?
+
+\vspace{4em}
+
+% ------------------------------------------------------------------
+\section{Error Signal $\delta$}
+
+Consider a 2-layer network (2 hidden neurons, 1 output, all sigmoid).
+The quantities below are known after a forward pass:
+
+\[
+  \delta^{(2)} = -0.20, \quad
+  W^{(2)} = \begin{bmatrix} 0.6 \\ -0.4 \end{bmatrix},\quad
+  z^{(1)} = \begin{bmatrix} 0.6 \\ -0.3 \end{bmatrix}
+\]
+
+\begin{enumerate}[label=\alph*.]
+  \item Compute $(W^{(2)})^T\, \delta^{(2)}$.
+  \item Compute $\sigma'(z^{(1)})$ element-wise
+        (recall $\sigma'(z) = \sigma(z)(1-\sigma(z))$).
+  \item Deduce $\delta^{(1)} = (W^{(2)})^T \delta^{(2)} \odot \sigma'(z^{(1)})$.
+\end{enumerate}
+
+\vspace{8em}
+
+% ------------------------------------------------------------------
+\section{Vanishing Gradients — Conceptual}
+
+The sigmoid derivative satisfies
+$\sigma'(z) \leq 0.25$ for all $z$.
+
+\begin{enumerate}[label=\alph*.]
+  \item Explain what happens to the gradient magnitude as it is
+        back-propagated through many sigmoid layers.
+        \vspace{4em}
+  \item Name one activation function that was introduced to mitigate
+        this problem, and state its derivative.
+        \vspace{4em}
+\end{enumerate}
+
+\end{document}
