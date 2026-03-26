@@ -4,6 +4,8 @@
 **Course: Neural Networks for Engineers**  
 **Duration: 2 hours**
 
+> ⚠️ **This is the completed reference version.** All exercises are filled in and ready to run.
+
 ---
 
 ## Table of Contents
@@ -41,24 +43,15 @@
 
 **Q1:** After two $3 \times 3$ convolutions (no padding), a $28 \times 28$ image becomes $24 \times 24$. After ten such layers, what size would it be?
 
-<details>
-<summary>Click to reveal answer</summary>
 Each layer shrinks the image by 2 in each dimension: $28 \to 26 \to 24 \to 22 \to 20 \to 18 \to 16 \to 14 \to 12 \to 10 \to 8$. After 10 layers: $8 \times 8$. After 14 layers it would reach $0 \times 0$ — impossible! This is why we need **padding** or a way to **intentionally** reduce size (pooling) rather than losing it accidentally.
-</details>
 
 **Q2:** Can a CNN beat our MLP's ~97% on MNIST?
 
-<details>
-<summary>Click to reveal answer</summary>
 Yes! State-of-the-art CNNs achieve **99.7%+** on MNIST. Even simple CNNs easily reach **99%+**. The spatial structure that MLPs ignore is exactly what CNNs exploit. We'll see this today.
-</details>
 
 **Q3:** What loss function guides learned kernels?
 
-<details>
-<summary>Click to reveal answer</summary>
 The same `CrossEntropyLoss` we've been using! The kernels are just parameters — backpropagation computes $\partial L / \partial K$ for every kernel weight, and the optimizer updates them. No one tells the network to learn edge detectors — it discovers them because edges help minimize classification loss.
-</details>
 
 ### The Missing Piece
 
@@ -137,8 +130,7 @@ $$
 \begin{bmatrix} 3 & 1 & 4 & 2 \\ 0 & 5 & 1 & 3 \\ 2 & 4 & 6 & 0 \\ 1 & 3 & 2 & 8 \end{bmatrix}
 $$
 
-<details>
-<summary>Solution</summary>
+**Solution:**
 
 Top-left $2 \times 2$: $\max(3, 1, 0, 5) = 5$  
 Top-right $2 \times 2$: $\max(4, 2, 1, 3) = 4$  
@@ -148,7 +140,6 @@ Bottom-right $2 \times 2$: $\max(6, 0, 2, 8) = 8$
 $$
 \text{Output} = \begin{bmatrix} 5 & 4 \\ 4 & 8 \end{bmatrix}
 $$
-</details>
 
 ### ✏️ Exercise 2.2 — Translation Invariance Demo
 
@@ -162,45 +153,29 @@ $$
 
 Apply $2 \times 2$ max pooling (stride 2) to both. Are the outputs the same?
 
-<details>
-<summary>Solution</summary>
+**Solution:**
 
 $\text{MaxPool}(A) = \begin{bmatrix} 9 & 0 \\ 0 & 0 \end{bmatrix}$
 
 $\text{MaxPool}(B) = \begin{bmatrix} 0 & 9 \\ 0 & 0 \end{bmatrix}$
 
 The outputs are **not** identical — the 9 moved from position (0,0) to (0,1). But the **presence** of the strong activation is preserved in the top row. Max pooling provides invariance to **small** shifts (within the pool window), not large ones. Multiple pooling layers provide invariance to progressively larger shifts.
-</details>
 
 ### ✏️ Exercise 2.3 — Dimension Tracking
 
 An input of size $32 \times 32$ passes through the following layers. Track the spatial dimensions:
 
-| Layer | Output size |
-|---|---|
-| Input | $32 \times 32$ |
-| Conv2d(3×3, padding=1, stride=1) | ? |
-| ReLU | ? |
-| MaxPool2d(2×2, stride=2) | ? |
-| Conv2d(3×3, padding=1, stride=1) | ? |
-| ReLU | ? |
-| MaxPool2d(2×2, stride=2) | ? |
-
-<details>
-<summary>Solution</summary>
-
 | Layer | Output size | Reasoning |
 |---|---|---|
 | Input | $32 \times 32$ | |
-| Conv2d(3×3, p=1, s=1) | $32 \times 32$ | Same padding preserves size |
+| Conv2d(3×3, padding=1, stride=1) | $32 \times 32$ | Same padding preserves size |
 | ReLU | $32 \times 32$ | Element-wise, no size change |
-| MaxPool2d(2×2, s=2) | $16 \times 16$ | Halved |
-| Conv2d(3×3, p=1, s=1) | $16 \times 16$ | Same padding preserves size |
+| MaxPool2d(2×2, stride=2) | $16 \times 16$ | Halved |
+| Conv2d(3×3, padding=1, stride=1) | $16 \times 16$ | Same padding preserves size |
 | ReLU | $16 \times 16$ | No size change |
-| MaxPool2d(2×2, s=2) | $8 \times 8$ | Halved again |
+| MaxPool2d(2×2, stride=2) | $8 \times 8$ | Halved again |
 
 **Pattern:** Conv+ReLU maintain size (with same padding), MaxPool halves it. Two pool layers: $32 \to 16 \to 8$.
-</details>
 
 ---
 
@@ -257,21 +232,7 @@ x = x.view(x.size(0), -1)     # or x.flatten(1)
 
 Trace the tensor shape through this network (input: batch of 4 images, $1 \times 28 \times 28$):
 
-```python
-nn.Conv2d(1, 8, 5, padding=2)    # ?
-nn.ReLU()                         # ?
-nn.MaxPool2d(2, 2)                # ?
-nn.Conv2d(8, 16, 5, padding=2)   # ?
-nn.ReLU()                         # ?
-nn.MaxPool2d(2, 2)                # ?
-# flatten
-nn.Linear(?, 120)                 # ?
-nn.ReLU()                         # ?
-nn.Linear(120, 10)                # ?
-```
-
-<details>
-<summary>Solution</summary>
+**Solution:**
 
 | Layer | Output shape |
 |---|---|
@@ -288,24 +249,10 @@ nn.Linear(120, 10)                # ?
 | Linear(120→10) | `(4, 10)` |
 
 The `nn.Linear` needs **784** input features (the flattened feature volume $16 \times 7 \times 7$).
-</details>
 
 ### ✏️ Exercise 3.2 — Parameter Count
 
 For the CNN in Exercise 3.1, compute the number of parameters in each layer:
-
-| Layer | Parameters |
-|---|---|
-| Conv2d(1→8, k=5) | ? |
-| Conv2d(8→16, k=5) | ? |
-| Linear(784→120) | ? |
-| Linear(120→10) | ? |
-| **Total** | ? |
-
-And compare with our Session 9 MLP (784→256→128→10).
-
-<details>
-<summary>Solution</summary>
 
 **CNN:**
 
@@ -317,7 +264,7 @@ And compare with our Session 9 MLP (784→256→128→10).
 | Linear(120→10) | $120 \times 10 + 10$ | 1,210 |
 | **Total** | | **98,834** |
 
-**Session 9 MLP:**
+**Session 9 MLP (784→256→128→10):**
 
 | Layer | Parameters |
 |---|---|
@@ -327,7 +274,6 @@ And compare with our Session 9 MLP (784→256→128→10).
 | **Total** | **235,146** |
 
 The CNN has **2.4× fewer parameters** but (as we'll see) achieves better accuracy. Most of the CNN's parameters are in the first FC layer — the conv layers are very efficient.
-</details>
 
 ---
 
@@ -396,8 +342,7 @@ The **receptive field** is the region of the input that influences a single outp
 
 **Part B:** After Conv1 ($5 \times 5$) + Pool ($2 \times 2$) + Conv2 ($5 \times 5$), what is the receptive field on the original input?
 
-<details>
-<summary>Solution</summary>
+**Solution:**
 
 **Part A:** The $2 \times 2$ pool combines $2 \times 2$ adjacent conv outputs. Each of those already sees $5 \times 5$ input pixels. The pools overlap by 4 pixels in each dimension (because stride 1 in conv), so the receptive field after pool is:
 
@@ -410,7 +355,6 @@ More precisely: the pool output at position $(i,j)$ looks at conv outputs $(2i, 
 Receptive field = $5 + (5 - 1) \times 2 = 5 + 8 = 13$ → approximately $\mathbf{14 \times 14}$ input pixels.
 
 A single neuron deep in the network "sees" **half the image**! This is how local operations build global understanding.
-</details>
 
 ### 💻 Exercise 4.2 — Verify Receptive Field in Code (optional)
 
@@ -433,39 +377,22 @@ nn.init.constant_(conv2.weight, 1.0)
 impulse = torch.zeros(1, 1, 28, 28)
 impulse[0, 0, 13, 13] = 1.0    # center pixel
 
-# TODO: Pass through conv1 → pool1 → conv2 and find the support
-# (where is the output non-zero?)
 with torch.no_grad():
-    after_conv1 = conv1(impulse)         # (1, 1, 24, 24)
-    after_pool1 = pool1(after_conv1)     # (1, 1, 12, 12)
-    after_conv2 = ___                    # (1, 1, 8, 8)
+    after_conv1 = conv1(impulse)           # (1, 1, 24, 24)
+    after_pool1 = pool1(after_conv1)       # (1, 1, 12, 12)
+    after_conv2 = conv2(after_pool1)       # (1, 1,  8,  8)
 
-# Find which output neurons are affected
 mask = (after_conv2[0, 0] > 0)
 print(f"After conv1:  {after_conv1.shape}, non-zero: {(after_conv1 > 0).sum().item()} pixels")
 print(f"After pool1:  {after_pool1.shape}, non-zero: {(after_pool1 > 0).sum().item()} pixels")
-print(f"After conv2:  {after_conv2.shape}, non-zero: {(mask).sum().item()} pixels")
+print(f"After conv2:  {after_conv2.shape}, non-zero: {mask.sum().item()} pixels")
 
-# The support in the output corresponds to an input receptive field.
-# A single output neuron sees how many input pixels?
 rows = torch.where(mask.any(dim=1))[0]
 cols = torch.where(mask.any(dim=0))[0]
 print(f"\nOutput support rows: {rows.min().item()} → {rows.max().item()} "
       f"(span: {rows.max().item() - rows.min().item() + 1})")
 print(f"Output support cols: {cols.min().item()} → {cols.max().item()} "
       f"(span: {cols.max().item() - cols.min().item() + 1})")
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
-with torch.no_grad():
-    after_conv1 = conv1(impulse)
-    after_pool1 = pool1(after_conv1)
-    after_conv2 = conv2(after_pool1)
-
-mask = (after_conv2[0, 0] > 0)
 ```
 
 Expected output (approximately):
@@ -475,8 +402,7 @@ After pool1:  torch.Size([1, 1, 12, 12]), non-zero: 9 pixels   (3×3 after halvi
 After conv2:  torch.Size([1, 1,  8,  8]), non-zero: 1 pixel    (single neuron affected)
 ```
 
-The **one output neuron** that fires was triggered by a $\approx 14 \times 14$ region of the original image — consistent with our analytical calculation. Adjust the impulse position to see the effect near borders.
-</details>
+The **one output neuron** that fires was triggered by a $\approx 14 \times 14$ region of the original image — consistent with our analytical calculation.
 
 ---
 
@@ -537,14 +463,7 @@ This is the **batch SGD** we discussed in Session 5, now automated!
 
 For each dataset, which augmentations make sense?
 
-| Dataset | Rotation? | Horizontal flip? | Vertical flip? | Color jitter? |
-|---|---|---|---|---|
-| MNIST digits | ? | ? | ? | ? |
-| Cats vs dogs | ? | ? | ? | ? |
-| Satellite images (find buildings) | ? | ? | ? | ? |
-
-<details>
-<summary>Solution</summary>
+**Solution:**
 
 | Dataset | Rotation? | H-flip? | V-flip? | Color jitter? |
 |---|---|---|---|---|
@@ -553,11 +472,10 @@ For each dataset, which augmentations make sense?
 | Satellite images | ✅ Full 360° | ✅ | ✅ (no "up" in satellite view) | ✅ (seasons, time of day) |
 
 The key principle: only augment in ways that **preserve the label**. A horizontally flipped "b" becomes "d" — that would confuse the model!
-</details>
 
 ### 💻 Exercise 5.2 — Visualize Augmentation Effects
 
-**Task:** Load a single MNIST image and display it alongside several augmented versions. This helps develop intuition for what the network actually "sees" during training.
+**Task:** Load a single MNIST image and display it alongside several augmented versions.
 
 ```python
 from torchvision import datasets, transforms
@@ -567,7 +485,6 @@ import matplotlib.pyplot as plt
 raw_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=None)
 raw_img, label = raw_dataset[0]   # PIL Image
 
-# TODO: Define 4 augmentation pipelines to compare
 aug_none = transforms.Compose([transforms.ToTensor()])
 
 aug_rotate = transforms.Compose([
@@ -581,9 +498,8 @@ aug_translate = transforms.Compose([
 ])
 
 aug_combined = transforms.Compose([
-    # TODO: combine rotation ±15° + translation 15%
-    ___,
-    ___,
+    transforms.RandomRotation(15),
+    transforms.RandomAffine(0, translate=(0.15, 0.15)),
     transforms.ToTensor(),
 ])
 
@@ -609,19 +525,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-<details>
-<summary>Solution</summary>
-
-```python
-aug_combined = transforms.Compose([
-    transforms.RandomRotation(15),
-    transforms.RandomAffine(0, translate=(0.15, 0.15)),
-    transforms.ToTensor(),
-])
-```
-
 **Observation:** Each row shows a **different random draw** of the same augmentation. Notice how the combined transform generates genuinely varied training samples while always preserving the digit identity.
-</details>
 
 ---
 
@@ -655,33 +559,30 @@ class LeNet5(nn.Module):
     def __init__(self):
         super().__init__()
         
-        # TODO: Define the feature extractor (2 conv blocks)
         self.features = nn.Sequential(
             # Block 1: Conv(1→6, k=5) → ReLU → MaxPool(2,2)
-            ___,
-            ___,
-            ___,
+            nn.Conv2d(1, 6, kernel_size=5),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
             # Block 2: Conv(6→16, k=5) → ReLU → MaxPool(2,2)
-            ___,
-            ___,
-            ___,
+            nn.Conv2d(6, 16, kernel_size=5),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
         
-        # TODO: Define the classifier (3 FC layers)
         # After features: shape is (batch, 16, 4, 4) → flatten to 256
         self.classifier = nn.Sequential(
-            ___,
-            ___,
-            ___,
-            ___,
-            ___,
+            nn.Linear(16 * 4 * 4, 120),
+            nn.ReLU(),
+            nn.Linear(120, 84),
+            nn.ReLU(),
+            nn.Linear(84, 10),
         )
     
     def forward(self, x):
-        # TODO: features → flatten → classifier
-        x = ___
+        x = self.features(x)
         x = x.view(x.size(0), -1)   # Flatten: (batch, 16, 4, 4) → (batch, 256)
-        x = ___
+        x = self.classifier(x)
         return x
 
 # Create and verify
@@ -696,72 +597,13 @@ print(f"Output: {out.shape}")  # Should be (2, 10)
 print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
 ```
 
-<details>
-<summary>Solution</summary>
-
-```python
-class LeNet5(nn.Module):
-    def __init__(self):
-        super().__init__()
-        
-        self.features = nn.Sequential(
-            nn.Conv2d(1, 6, kernel_size=5),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(6, 16, kernel_size=5),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        
-        self.classifier = nn.Sequential(
-            nn.Linear(16 * 4 * 4, 120),
-            nn.ReLU(),
-            nn.Linear(120, 84),
-            nn.ReLU(),
-            nn.Linear(84, 10),
-        )
-    
-    def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
-```
-</details>
-
 ### 💻 Exercise 6.2 — Verify Shapes Layer by Layer
 
-**Task:** Write a diagnostic function that prints the tensor shape after every layer. This is essential for debugging CNNs.
+**Task:** Write a diagnostic function that prints the tensor shape after every layer.
 
 ```python
 def trace_shapes(model, input_shape=(1, 1, 28, 28)):
     """Print the tensor shape after each layer in the model."""
-    x = torch.randn(input_shape)
-    print(f"{'Input':>30s}: {list(x.shape)}")
-    
-    # TODO: Iterate through self.features and self.classifier
-    # Apply each layer one at a time and print the shape
-    # Don't forget to flatten between features and classifier!
-    
-    for name, layer in model.features.named_children():
-        x = layer(x)
-        print(f"{str(layer):>30s}: {list(x.shape)}")
-    
-    x = x.view(x.size(0), -1)
-    print(f"{'Flatten':>30s}: {list(x.shape)}")
-    
-    for name, layer in model.classifier.named_children():
-        x = layer(x)                                    # TODO: apply layer
-        print(f"{str(layer):>30s}: {list(x.shape)}")   # TODO: print shape
-
-trace_shapes(LeNet5())
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
-def trace_shapes(model, input_shape=(1, 1, 28, 28)):
     x = torch.randn(input_shape)
     print(f"{'Input':>30s}: {list(x.shape)}")
     
@@ -795,7 +637,6 @@ Expected output:
                           ReLU(): [1, 84]
            Linear(in_features=84, out_features=10, ...): [1, 10]
 ```
-</details>
 
 ---
 
@@ -809,44 +650,6 @@ Expected output:
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# TODO: Define transforms
-# Training: RandomRotation(10), RandomAffine (translate 10%), ToTensor
-# Testing: just ToTensor
-train_transform = transforms.Compose([
-    ___,
-    ___,
-    ___,
-])
-
-test_transform = transforms.Compose([
-    ___,
-])
-
-# Load datasets
-train_dataset = datasets.MNIST(root='./data', train=True, download=True, 
-                                transform=train_transform)
-test_dataset = datasets.MNIST(root='./data', train=False, download=True, 
-                               transform=test_transform)
-
-# TODO: Create DataLoaders
-# Training: batch_size=64, shuffle=True
-# Testing: batch_size=256, shuffle=False
-train_loader = DataLoader(___)
-test_loader = DataLoader(___)
-
-print(f"Training batches: {len(train_loader)} (of size 64)")
-print(f"Test batches:     {len(test_loader)} (of size 256)")
-
-# Verify a batch
-images, labels = next(iter(train_loader))
-print(f"Batch shape: {images.shape}, Labels shape: {labels.shape}")
-# Expected: (64, 1, 28, 28) and (64,)
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
 train_transform = transforms.Compose([
     transforms.RandomRotation(10),
     transforms.RandomAffine(0, translate=(0.1, 0.1)),
@@ -857,6 +660,7 @@ test_transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+# Load datasets
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, 
                                 transform=train_transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, 
@@ -864,12 +668,19 @@ test_dataset = datasets.MNIST(root='./data', train=False, download=True,
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
+
+print(f"Training batches: {len(train_loader)} (of size 64)")
+print(f"Test batches:     {len(test_loader)} (of size 256)")
+
+# Verify a batch
+images, labels = next(iter(train_loader))
+print(f"Batch shape: {images.shape}, Labels shape: {labels.shape}")
+# Expected: (64, 1, 28, 28) and (64,)
 ```
-</details>
 
 ### 💻 Exercise 7.2 — Write the Batch Training Loop
 
-**Task:** Write a complete training loop using DataLoader. This differs from Session 9 because we iterate over **batches** instead of the full dataset.
+**Task:** Write a complete training loop using DataLoader.
 
 ```python
 def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
@@ -891,58 +702,6 @@ def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
         n_batches = 0
         
         for images, labels in train_loader:
-            # TODO: The 5-step training pattern (from Session 9)
-            outputs = ___
-            loss = ___
-            ___          # zero grad
-            ___          # backward
-            ___          # step
-            
-            epoch_loss += loss.item()
-            n_batches += 1
-        
-        avg_loss = epoch_loss / n_batches
-        train_losses.append(avg_loss)
-        
-        # ── Evaluate on test set ──
-        model.eval()
-        correct = 0
-        total = 0
-        
-        with torch.no_grad():
-            for images, labels in test_loader:
-                # TODO: Forward pass, count correct predictions
-                outputs = ___
-                preds = ___
-                correct += ___
-                total += ___
-        
-        test_acc = correct / total * 100
-        test_accs.append(test_acc)
-        
-        print(f"Epoch {epoch+1:2d}/{n_epochs}: "
-              f"Train Loss = {avg_loss:.4f} | Test Acc = {test_acc:.2f}%")
-    
-    return train_losses, test_accs
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
-def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    
-    train_losses = []
-    test_accs = []
-    
-    for epoch in range(n_epochs):
-        model.train()
-        epoch_loss = 0.0
-        n_batches = 0
-        
-        for images, labels in train_loader:
             outputs = model(images)
             loss = criterion(outputs, labels)
             optimizer.zero_grad()
@@ -955,6 +714,7 @@ def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
         avg_loss = epoch_loss / n_batches
         train_losses.append(avg_loss)
         
+        # ── Evaluate on test set ──
         model.eval()
         correct = 0
         total = 0
@@ -974,7 +734,6 @@ def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
     
     return train_losses, test_accs
 ```
-</details>
 
 ### 💻 Exercise 7.3 — Train and Plot
 
@@ -984,37 +743,6 @@ def train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001):
 model = LeNet5()
 train_losses, test_accs = train_cnn(model, train_loader, test_loader, n_epochs=10, lr=0.001)
 
-# TODO: Create a 1×2 figure
-# Left: Training loss per epoch (line plot)
-# Right: Test accuracy per epoch (line plot)
-# Add horizontal dashed line at 97% (our MLP baseline from Session 9)
-
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-
-# Left: loss
-ax = axes[0]
-# TODO: ax.plot(...) — use train_losses, label='Training Loss', color blue
-# TODO: ax.set_xlabel / ylabel / title / grid
-___
-
-# Right: accuracy with MLP baseline
-ax = axes[1]
-# TODO: ax.plot(...) — use test_accs, label='LeNet-5', color green
-# TODO: ax.axhline(y=97, ...) — dashed red line for MLP baseline at 97%
-# TODO: ax.set_ylim(95, 100) to zoom in on the interesting range
-___
-
-plt.tight_layout()
-plt.show()
-
-print(f"\nFinal test accuracy: {test_accs[-1]:.2f}%")
-print(f"Session 9 MLP baseline: ~97%")
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 ax = axes[0]
@@ -1036,12 +764,14 @@ ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()
+
+print(f"\nFinal test accuracy: {test_accs[-1]:.2f}%")
+print(f"Session 9 MLP baseline: ~97%")
 ```
-</details>
 
 ### 💻 Exercise 7.4 — Confusion Matrix
 
-**Task:** Build and display the $10 \times 10$ confusion matrix on the test set. Which digits does the CNN confuse?
+**Task:** Build and display the $10 \times 10$ confusion matrix on the test set.
 
 ```python
 # Collect all predictions
@@ -1059,31 +789,11 @@ with torch.no_grad():
 all_preds = torch.cat(all_preds).numpy()
 all_labels = torch.cat(all_labels).numpy()
 
-# TODO: Build and display confusion matrix
-# Reuse the pattern from Session 9 Project C
+# Build confusion matrix
 cm = np.zeros((10, 10), dtype=int)
 for true, pred in zip(all_labels, all_preds):
     cm[true, pred] += 1
 
-fig, ax = plt.subplots(figsize=(10, 8))
-# TODO: ax.imshow(cm, cmap='Blues') to show the matrix
-# TODO: annotate each cell with its value (ax.text in a nested loop)
-# TODO: set axis labels (Predicted / True), title, colorbar
-___
-
-plt.show()
-
-# Per-digit accuracy
-print("\nPer-digit accuracy:")
-for d in range(10):
-    acc = cm[d, d] / cm[d].sum() * 100
-    print(f"  Digit {d}: {acc:.1f}% ({cm[d, d]}/{cm[d].sum()})")
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
 fig, ax = plt.subplots(figsize=(10, 8))
 im = ax.imshow(cm, cmap='Blues')
 for i in range(10):
@@ -1100,8 +810,13 @@ ax.set_title(f'LeNet-5 Confusion Matrix (Acc: {test_accs[-1]:.2f}%)', fontsize=1
 plt.colorbar(im, ax=ax)
 plt.tight_layout()
 plt.show()
+
+# Per-digit accuracy
+print("\nPer-digit accuracy:")
+for d in range(10):
+    acc = cm[d, d] / cm[d].sum() * 100
+    print(f"  Digit {d}: {acc:.1f}% ({cm[d, d]}/{cm[d].sum()})")
 ```
-</details>
 
 ---
 
@@ -1116,18 +831,13 @@ We hand-designed edge and blur kernels in Session 10. Now the CNN **learned** it
 **Task:** Extract and display the 6 filters learned by Conv1 (the first convolutional layer).
 
 ```python
-# TODO: Extract Conv1's learned weights
-# model.features[0] is the first Conv2d layer
-# .weight has shape (6, 1, 5, 5) — 6 filters, 1 input channel, 5×5
 conv1_weights = model.features[0].weight.data.clone()
 
 print(f"Conv1 filter shape: {conv1_weights.shape}")
 
-# TODO: Display the 6 filters in a 1×6 grid
 fig, axes = plt.subplots(1, 6, figsize=(15, 3))
 for i in range(6):
-    # Extract filter i: shape (1, 5, 5) → squeeze to (5, 5)
-    filt = ___
+    filt = conv1_weights[i, 0].numpy()   # shape (1, 5, 5) → (5, 5)
     ax = axes[i]
     ax.imshow(filt, cmap='gray')
     ax.set_title(f'Filter {i}', fontsize=11)
@@ -1137,63 +847,30 @@ plt.suptitle('LeNet-5 Conv1: Learned Filters (5×5)', fontsize=16)
 plt.tight_layout()
 plt.show()
 ```
-
-<details>
-<summary>Solution</summary>
-
-```python
-conv1_weights = model.features[0].weight.data.clone()
-
-fig, axes = plt.subplots(1, 6, figsize=(15, 3))
-for i in range(6):
-    filt = conv1_weights[i, 0].numpy()
-    ax = axes[i]
-    ax.imshow(filt, cmap='gray')
-    ax.set_title(f'Filter {i}', fontsize=11)
-    ax.axis('off')
-
-plt.suptitle('LeNet-5 Conv1: Learned Filters (5×5)', fontsize=16)
-plt.tight_layout()
-plt.show()
-```
-</details>
 
 **Observation:** You should see filters that resemble **edge detectors** at various angles, **gradient detectors**, and maybe a **blob detector**. The CNN reinvented what took decades of computer vision research — automatically, from data!
 
 ### 💻 Exercise 8.2 — Visualize Feature Maps
 
-**Task:** Pass a single MNIST digit through the network and display the feature maps after each conv layer. This shows what each filter "sees."
+**Task:** Pass a single MNIST digit through the network and display the feature maps after each conv layer.
 
 ```python
 # Get a test digit
 test_img, test_label = test_dataset[0]
 print(f"Digit: {test_label}, shape: {test_img.shape}")
 
-# TODO: Get feature maps at each stage
-# We need to run parts of the model manually.
-# features[0] = Conv1, features[1] = ReLU, features[2] = Pool1
-# features[3] = Conv2, features[4] = ReLU, features[5] = Pool2
-
 model.eval()
 with torch.no_grad():
     x = test_img.unsqueeze(0)      # Add batch dim: (1, 1, 28, 28)
     
     # After Conv1 + ReLU
-    after_conv1 = model.features[1](model.features[0](x))     # (1, 6, 24, 24)
-    
+    after_conv1 = model.features[1](model.features[0](x))              # (1, 6, 24, 24)
     # After Pool1
-    after_pool1 = model.features[2](after_conv1)               # (1, 6, 12, 12)
-    
-    # TODO: After Conv2 + ReLU
-    after_conv2 = ___                                           # (1, 16, 8, 8)
-    
-    # TODO: After Pool2
-    after_pool2 = ___                                           # (1, 16, 4, 4)
-
-# TODO: Display feature maps in a multi-row figure
-# Row 0: Original image (1 panel)
-# Row 1: Conv1 feature maps (6 panels)
-# Row 2: Conv2 feature maps (16 panels, use 2 rows of 8)
+    after_pool1 = model.features[2](after_conv1)                        # (1, 6, 12, 12)
+    # After Conv2 + ReLU
+    after_conv2 = model.features[4](model.features[3](after_pool1))     # (1, 16, 8, 8)
+    # After Pool2
+    after_pool2 = model.features[5](after_conv2)                        # (1, 16, 4, 4)
 
 fig = plt.figure(figsize=(18, 12))
 
@@ -1211,50 +888,9 @@ for i in range(6):
     ax.set_title(f'Conv1-{i}', fontsize=9)
     ax.axis('off')
 
-# TODO: Conv2 feature maps (16 maps in 2 rows of 8)
+# Conv2 feature maps (16 maps in 2 rows of 8)
 for i in range(16):
     row = 2 + i // 8    # rows 2 and 3
-    col = i % 8
-    ax = fig.add_subplot(4, 8, row * 8 + col + 1)
-    fmap = after_conv2[0, i].numpy()   # TODO: like above, extract channel i from after_conv2
-    ax.imshow(fmap, cmap='viridis')
-    ax.set_title(f'C2-{i}', fontsize=8)
-    ax.axis('off')
-
-plt.suptitle('Feature Maps Through LeNet-5', fontsize=16)
-plt.tight_layout()
-plt.show()
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
-model.eval()
-with torch.no_grad():
-    x = test_img.unsqueeze(0)
-    
-    after_conv1 = model.features[1](model.features[0](x))
-    after_pool1 = model.features[2](after_conv1)
-    after_conv2 = model.features[4](model.features[3](after_pool1))
-    after_pool2 = model.features[5](after_conv2)
-
-fig = plt.figure(figsize=(18, 12))
-
-ax = fig.add_subplot(4, 8, 1)
-ax.imshow(test_img.squeeze(), cmap='gray')
-ax.set_title(f'Input (digit {test_label})', fontsize=11)
-ax.axis('off')
-
-for i in range(6):
-    ax = fig.add_subplot(4, 8, 9 + i)
-    fmap = after_conv1[0, i].numpy()
-    ax.imshow(fmap, cmap='viridis')
-    ax.set_title(f'Conv1-{i}', fontsize=9)
-    ax.axis('off')
-
-for i in range(16):
-    row = 2 + i // 8
     col = i % 8
     ax = fig.add_subplot(4, 8, row * 8 + col + 1)
     fmap = after_conv2[0, i].numpy()
@@ -1266,7 +902,6 @@ plt.suptitle('Feature Maps Through LeNet-5', fontsize=16)
 plt.tight_layout()
 plt.show()
 ```
-</details>
 
 **Observations to look for:**
 - **Conv1 maps**: Should look like edges/gradients applied to the digit — some highlight horizontal strokes, others vertical
@@ -1275,18 +910,15 @@ plt.show()
 
 ### 💻 Exercise 8.3 — Compare Feature Maps Across Digits
 
-**Task:** Pick 3 different digits (e.g., 0, 1, 7) and show the Conv1 feature maps for each. Does the same filter respond differently to different digits?
+**Task:** Pick 3 different digits (e.g., 0, 1, 7) and show the Conv1 feature maps for each.
 
 ```python
-# TODO: Find one example each of digits 0, 1, and 7
 digits_to_show = [0, 1, 7]
 digit_images = []
 for d in digits_to_show:
     idx = next(i for i in range(len(test_dataset)) if test_dataset[i][1] == d)
     digit_images.append(test_dataset[idx][0])
 
-# TODO: Compute Conv1 + ReLU feature maps for each digit
-# Display in a 3×7 grid: column 0 = original, columns 1-6 = feature maps
 fig, axes = plt.subplots(3, 7, figsize=(18, 8))
 
 for row, (d, img) in enumerate(zip(digits_to_show, digit_images)):
@@ -1301,32 +933,6 @@ for row, (d, img) in enumerate(zip(digits_to_show, digit_images)):
     
     for i in range(6):
         ax = axes[row, i+1]
-        ax.imshow(fmaps[0, i].numpy(), cmap='viridis')   # TODO: display feature map i
-        ax.axis('off')
-        if row == 0:
-            ax.set_title(f'Filter {i}', fontsize=10)
-
-plt.suptitle('Same Filters, Different Digits', fontsize=16)
-plt.tight_layout()
-plt.show()
-```
-
-<details>
-<summary>Solution</summary>
-
-```python
-fig, axes = plt.subplots(3, 7, figsize=(18, 8))
-
-for row, (d, img) in enumerate(zip(digits_to_show, digit_images)):
-    axes[row, 0].imshow(img.squeeze(), cmap='gray')
-    axes[row, 0].set_title(f'Digit {d}', fontsize=12)
-    axes[row, 0].axis('off')
-    
-    with torch.no_grad():
-        fmaps = model.features[1](model.features[0](img.unsqueeze(0)))
-    
-    for i in range(6):
-        ax = axes[row, i+1]
         ax.imshow(fmaps[0, i].numpy(), cmap='viridis')
         ax.axis('off')
         if row == 0:
@@ -1336,7 +942,6 @@ plt.suptitle('Same Filters, Different Digits', fontsize=16)
 plt.tight_layout()
 plt.show()
 ```
-</details>
 
 **Key observation:** The same filter produces **different patterns** for different digits. Filter 2 might highlight the horizontal bar in "7" and the top curve in "0" — both are horizontal features, but they appear in different places. This is **weight sharing** in action: one filter, many locations.
 
@@ -1406,7 +1011,6 @@ class MLP_MNIST(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# TODO: Train both models for 10 epochs, same lr, same data
 mlp = MLP_MNIST()
 cnn = LeNet5()
 
@@ -1416,26 +1020,9 @@ mlp_losses, mlp_accs = train_cnn(mlp, train_loader, test_loader, n_epochs=10, lr
 print("\nTraining CNN...")
 cnn_losses, cnn_accs = train_cnn(cnn, train_loader, test_loader, n_epochs=10, lr=0.001)
 
-# TODO: Plot both on the same figure (accuracy over epochs)
-# ax.plot(range(1,11), mlp_accs, ...) and ax.plot(range(1,11), cnn_accs, ...)
-# Add legend with param counts, xlabel/ylabel, title, grid
-fig, ax = plt.subplots(figsize=(10, 6))
-___
-
-plt.show()
-
-# Parameter comparison
 mlp_params = sum(p.numel() for p in mlp.parameters())
 cnn_params = sum(p.numel() for p in cnn.parameters())
-print(f"\nMLP parameters:  {mlp_params:,}")
-print(f"CNN parameters:  {cnn_params:,}")
-print(f"CNN / MLP ratio: {cnn_params/mlp_params:.2f}")
-```
 
-<details>
-<summary>Solution — plot</summary>
-
-```python
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.plot(range(1, 11), mlp_accs, 'b-o', linewidth=2, label=f'MLP ({mlp_params:,} params)')
 ax.plot(range(1, 11), cnn_accs, 'g-o', linewidth=2, label=f'CNN ({cnn_params:,} params)')
@@ -1446,8 +1033,11 @@ ax.legend(fontsize=12)
 ax.set_ylim(95, 100)
 ax.grid(True, alpha=0.3)
 plt.show()
+
+print(f"\nMLP parameters:  {mlp_params:,}")
+print(f"CNN parameters:  {cnn_params:,}")
+print(f"CNN / MLP ratio: {cnn_params/mlp_params:.2f}")
 ```
-</details>
 
 ### 💻 Exercise 9.2 — Architecture Variations
 
@@ -1459,19 +1049,9 @@ class DeepCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.features = nn.Sequential(
-            # TODO: Conv(1→6, 3×3, pad=1) → ReLU → Pool(2,2)
-            ___,
-            ___,
-            ___,
-            # TODO: Conv(6→16, 3×3, pad=1) → ReLU → Pool(2,2)
-            ___,
-            ___,
-            ___,
-            # TODO: Conv(16→32, 3×3, pad=1) → ReLU → Pool(2,2)
-            # (After: 32 × 3 × 3 = 288 → need to adjust FC input)
-            ___,
-            ___,
-            ___,
+            nn.Conv2d(1, 6, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),    # → 6×14×14
+            nn.Conv2d(6, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),   # → 16×7×7
+            nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),  # → 32×3×3
         )
         self.classifier = nn.Sequential(
             nn.Linear(32 * 3 * 3, 120),
@@ -1505,29 +1085,7 @@ class WideCNN(nn.Module):
         x = x.view(x.size(0), -1)
         return self.classifier(x)
 
-# Variant C: Tiny — minimal CNN
-class TinyCNN(nn.Module):
-    def __init__(self):
-        super().__init__()
-        # TODO: Just one conv layer! Conv(1→8, 5×5) → ReLU → Pool(2,2) → Flatten → FC → 10
-        ___
-    
-    def forward(self, x):
-        ___
-```
-
-<details>
-<summary>Solution — DeepCNN features and TinyCNN</summary>
-
-```python
-# DeepCNN features
-self.features = nn.Sequential(
-    nn.Conv2d(1, 6, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),    # → 6×14×14
-    nn.Conv2d(6, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),   # → 16×7×7
-    nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2, 2),  # → 32×3×3
-)
-
-# TinyCNN
+# Variant C: Tiny — minimal CNN (1 conv layer)
 class TinyCNN(nn.Module):
     def __init__(self):
         super().__init__()
@@ -1541,9 +1099,8 @@ class TinyCNN(nn.Module):
         x = x.view(x.size(0), -1)
         return self.classifier(x)
 ```
-</details>
 
-**Task:** Train all variants and compare.
+**Train all variants and compare:**
 
 ```python
 variants = {
@@ -1564,7 +1121,6 @@ for name, model_v in variants.items():
     losses, accs = train_cnn(model_v, train_loader, test_loader, n_epochs=10, lr=0.001)
     results[name] = {"losses": losses, "accs": accs, "params": n_params}
 
-# TODO: Plot all accuracy curves on one figure, with legend showing param count
 fig, ax = plt.subplots(figsize=(12, 7))
 
 for name, res in results.items():
@@ -1582,45 +1138,28 @@ plt.show()
 
 ### ✏️ Exercise 9.3 — Analysis Questions
 
-Answer in your notebook:
-
 1. **Which architecture achieved the best accuracy?** Is the best one also the biggest?
 2. **TinyCNN has only 1 conv layer.** How does it compare to the Session 9 MLP? What does this tell you about the value of even a single convolution?
 3. **DeepCNN has 3 conv layers.** Did it beat LeNet-5? After pooling 3 times ($28 \to 14 \to 7 \to 3$), the feature maps are only $3 \times 3$. Is this too small?
 4. **WideCNN uses dropout in the FC layer.** Based on Session 8, why is this a good idea here?
 5. You have a new task: classify $64 \times 64$ RGB images into 100 classes. Based on what you've learned, sketch an architecture (layers, filter sizes, channels). How many conv+pool blocks would you use?
 
-**Your answers:**
-
-> **Q1:**  
-> *(write here)*
-
-> **Q2:**  
-> *(write here)*
-
-> **Q3:**  
-> *(write here)*
-
-> **Q4:**  
-> *(write here)*
-
-> **Q5 — Proposed architecture:**  
-> *(sketch your architecture here, e.g. Conv(3→16, 3×3) → ReLU → Pool → ...)*
-
-<details>
-<summary>Discussion points</summary>
+**Discussion:**
 
 1. **Best accuracy vs. biggest:** WideCNN (32→64 channels) often wins despite having more params than LeNet-5 but fewer than DeepCNN. Bigger is not always better.
+
 2. **TinyCNN vs MLP:** TinyCNN typically outperforms the Session 9 MLP (~97%) despite having far fewer parameters. Even one conv layer exploits spatial structure that a flat MLP can't.
+
 3. **DeepCNN with 3×3 maps:** Feature maps become very small after 3 pools. The 3×3 spatial resolution may be too coarse for MNIST — the network loses positional information. On larger images (64×64+), a third pool block is beneficial.
-4. **Dropout in WideCNN:** The first FC layer of WideCNN has 64×4×4 = 1024 input features. A large FC layer is prone to overfitting; Dropout(0.5) acts as an ensemble of sub-networks and reduces co-adaptation.
+
+4. **Dropout in WideCNN:** The first FC layer of WideCNN has $64 \times 4 \times 4 = 1024$ input features. A large FC layer is prone to overfitting; Dropout(0.5) acts as an ensemble of sub-networks and reduces co-adaptation.
+
 5. **64×64 RGB architecture (example):**  
    `Conv(3→32, 3×3, p=1) → ReLU → Pool(2,2)` → 32×32  
    `Conv(32→64, 3×3, p=1) → ReLU → Pool(2,2)` → 16×16  
    `Conv(64→128, 3×3, p=1) → ReLU → Pool(2,2)` → 8×8  
    `Flatten(8192) → FC(512) → Dropout(0.5) → FC(100)`  
    3 conv+pool blocks for a 64×64 input is a reasonable starting point.
-</details>
 
 ---
 
