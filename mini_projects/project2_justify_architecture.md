@@ -1,23 +1,19 @@
 # Project 2 — Justify Your Architecture
 
 **Neural Networks — Practical Project**  
-Duration: ~2 hours | group 2-3
+Duration: ~2 hours | Individual or pair
 
 ---
 
 ## Overview
 
-You are given three 2D synthetic datasets and a working MLP class. For each dataset, you must:
+You are given three 2D synthetic datasets and a working MLP. For each dataset you must train a model, plot the decision boundary, and **justify every choice in writing using equations** — not just intuition.
 
-1. Train an MLP that achieves good classification
-2. Plot the learned decision boundary
-3. Write an **Architecture Card** justifying every hyperparameter choice
-
-The goal is not just to make something work — it is to understand *why* your choices work.
+The goal is not to find the best model. It is to understand precisely why your model works, why a simpler one would not, and to predict outcomes before observing them.
 
 ---
 
-## Setup — MLP and dataset generators
+## Setup
 
 ```python
 import numpy as np
@@ -70,7 +66,7 @@ class MLP:
         return losses
 
 
-# ── Dataset generators ─────────────────────────────────────────────────────
+# ── Dataset generators ──────────────────────────────────────────────────────
 
 def make_xor(n=200, noise=0.1, seed=0):
     np.random.seed(seed)
@@ -109,7 +105,6 @@ def plot_boundary(mlp, X, y, title=""):
                          np.linspace(y_min, y_max, 200))
     grid = np.vstack([xx.ravel(), yy.ravel()])
     Z = mlp.forward(grid).reshape(xx.shape)
-
     plt.figure(figsize=(7, 6))
     plt.contourf(xx, yy, Z, levels=[0, 0.5, 1],
                  colors=["#ADD8E6", "#FFCCCB"], alpha=0.4)
@@ -122,92 +117,189 @@ def plot_boundary(mlp, X, y, title=""):
     plt.axis("equal")
     plt.grid(True, alpha=0.3)
     plt.show()
+
+X_xor,    y_xor    = make_xor()
+X_spiral, y_spiral = make_spiral()
+X_gauss,  y_gauss  = make_gaussians()
 ```
 
 ---
 
-## Your Tasks
-
-### Task 1 — Train a model on each dataset
+## Task 1 — Train a model on each dataset
 
 For each of the three datasets, train an MLP and produce:
 
-- A **loss curve** (epochs vs MSE, log scale)
+- A **loss curve** (MSE vs epochs, log scale)
 - A **decision boundary plot** using `plot_boundary`
 - Final training accuracy (percentage of correctly classified points)
 
-```python
-X_xor,     y_xor     = make_xor()
-X_spiral,  y_spiral  = make_spiral()
-X_gauss,   y_gauss   = make_gaussians()
-```
-
-You are free to choose any architecture and hyperparameters. Start simple and adjust based on what you observe.
+You are free to choose any architecture and hyperparameters. Start with the simplest architecture that could plausibly work, then increase complexity only if needed.
 
 ---
 
-### Task 2 — Write an Architecture Card for each dataset
+## Task 2 — Architecture Cards
 
-For each dataset, fill in the following card. Every field requires a justification — not just the value.
+For each dataset, fill in the card below completely. The justification column must contain either an equation, a geometric argument, or a reference to a specific observation from your loss curve. Answers like "I tried it and it worked" are not accepted.
 
 ---
 
-**Architecture Card — Dataset: XOR / Spiral / Gaussians** *(one card per dataset)*
+**Architecture Card — Dataset: _______________**  
+*(fill one card per dataset)*
 
-| Hyperparameter | Value chosen | Justification |
-|----------------|-------------|---------------|
+| Hyperparameter | Value chosen | Justification — equation or geometric argument |
+|----------------|-------------|------------------------------------------------|
 | Number of hidden neurons | | |
 | Activation function | | |
 | Learning rate | | |
 | Number of epochs | | |
 
-**What is the geometric shape of the decision boundary your model needs to learn?**  
-*(e.g. "two parallel lines", "a closed curve", "a single line")*
+**Minimum neuron count:**  
+What is the minimum number of hidden neurons that could theoretically solve this dataset? Argue from geometry — what is the simplest set of half-planes whose intersection or union produces the required boundary?
 
-**How does each hidden neuron contribute to building that boundary?**  
-*(explain in terms of what a single sigmoid neuron computes geometrically)*
+**Decision boundary geometry:**  
+Describe the shape of the boundary your trained model must produce. Sketch it on paper and include the sketch (photo is fine).
 
-**What happened when you tried a configuration that did NOT work?**  
-*(describe one failed attempt: what you tried, what you observed, why it failed)*
-
----
-
-### Task 3 — Cross-dataset comparison
-
-Answer the following questions in writing (3–5 sentences each):
-
-**Q1.** Your three models likely use different numbers of hidden neurons. Rank the three datasets by how many hidden neurons they need, from fewest to most. Justify the ranking geometrically — why does one dataset require more capacity than another?
-
-**Q2.** The learning rate controls the step size in gradient descent. Did you use the same learning rate for all three datasets? If not, what guided your choice? If yes, do you think it is optimal for all three — why or why not?
-
-**Q3.** Look at your three loss curves. Which dataset converges fastest? Explain why in terms of the loss landscape — what property of the data makes optimization easier or harder?
+**One failed attempt:**  
+Describe one architecture or hyperparameter choice that did not work. Report the symptom (loss curve shape, boundary shape) and explain the failure with reference to gradient descent or network capacity.
 
 ---
 
-### Task 4 — Stress test (required)
+## Task 3 — Hidden neuron geometry by hand
 
-Pick your best model on the spiral dataset. Retrain it with **each of the following modifications**, one at a time, keeping everything else fixed. For each, report what happens to the final loss and decision boundary.
+This task must be completed **without modifying the trained model** — only read its weights.
 
-| Modification | What you observe | Your explanation |
-|---|---|---|
-| Reduce hidden neurons to 1 | | |
-| Set learning rate to 5.0 | | |
-| Set learning rate to 0.001 | | |
-| Train for only 100 epochs | | |
+After training your model on the **XOR dataset**, extract the weights of hidden neuron number 1 (first row of $W^{(1)}$, first element of $b^{(1)}$):
+
+```python
+w1 = mlp_xor.W1[0, :]   # shape (2,)
+b1 = mlp_xor.b1[0, 0]   # scalar
+print("w1:", w1, "  b1:", b1)
+```
+
+**3a.** A sigmoid neuron is close to 0.5 — its most uncertain point — when its pre-activation is zero:
+
+$$w_{1,1} \cdot x_1 + w_{1,2} \cdot x_2 + b_1 = 0$$
+
+This is the equation of a line in input space. Rearrange it into the form $x_2 = \alpha x_1 + \beta$ and compute $\alpha$ and $\beta$ numerically using your trained weights.
+
+**3b.** Draw this line on your XOR boundary plot. Does it pass through a region where the decision boundary changes? Explain why this neuron's line is positioned where it is.
+
+**3c.** Repeat for hidden neuron number 2. Do the two lines together explain the shape of the full decision boundary? Explain in 3–4 sentences, referring to how the output neuron combines $a^{(1)}_1$ and $a^{(1)}_2$.
+
+---
+
+## Task 4 — Stress test with predictions
+
+Pick your trained model on the **spiral dataset**. Before running each modification, write your prediction. Submit the prediction column **before running any code** — it will be collected separately.
+
+For each row: fill the prediction first, then run, then fill the result and explanation.
+
+| Modification | Prediction (before running) | Actual result | Explanation of gap |
+|---|---|---|---|
+| Reduce hidden neurons to 1 | | | |
+| Set learning rate to 5.0 | | | |
+| Set learning rate to 0.001 | | | |
+| Train for only 100 epochs | | | |
+| Remove all biases (set $b^{(1)} = b^{(2)} = 0$ permanently) | | | |
+
+**Prediction format:** for each row, write at minimum: expected final loss (order of magnitude), expected boundary shape (sketch or description), and one sentence of justification using gradient descent or geometry.
+
+---
+
+## Task 5 — Boundary-to-architecture matching
+
+Below are four decision boundary descriptions. For each one, identify which dataset it most likely came from, what architecture (number of hidden neurons) most likely produced it, and justify your answer.
+
+You may not run any code for this task — reason from what you know about what each architecture can represent.
+
+---
+
+**Boundary A:** A single smooth S-shaped curve running diagonally across the input space, cleanly separating left from right with no loops or islands.
+
+- Dataset: _______________
+- Architecture (hidden neurons): _______________
+- Justification:
+
+---
+
+**Boundary B:** Two roughly diagonal bands of class 1 separated by class 0 regions in the corners — the boundary consists of two nearly parallel curves.
+
+- Dataset: _______________
+- Architecture (hidden neurons): _______________
+- Justification:
+
+---
+
+**Boundary C:** A highly irregular boundary with several alternating class regions, roughly following a spiral path outward from the center. The boundary crosses itself multiple times.
+
+- Dataset: _______________
+- Architecture (hidden neurons): _______________
+- Justification:
+
+---
+
+**Boundary D:** A smooth boundary similar to C but coarser — it captures the general spiral direction but misses several points near the center, leaving a visible misclassified cluster.
+
+- Dataset: _______________
+- Architecture (hidden neurons): _______________
+- Justification (why fewer neurons produces this coarser result):
+
+---
+
+## Task 6 — Design from a symptom
+
+You are given three loss curve descriptions from models trained by someone else. For each, diagnose the problem and prescribe the minimal fix. Your fix must be expressed as a concrete change (new neuron count, new learning rate value, etc.) with a justification that uses at least one equation from the course.
+
+---
+
+**Symptom 1:** The loss decreases smoothly for 500 epochs then completely plateaus at MSE ≈ 0.25 on the spiral dataset. The decision boundary is a single diagonal line.
+
+- Diagnosis:
+- Prescribed fix (concrete values):
+- Justification with equation:
+
+---
+
+**Symptom 2:** The loss drops rapidly for the first 50 epochs on the gaussian dataset, then begins oscillating — alternating between 0.05 and 0.20 every few epochs — and never stabilises.
+
+- Diagnosis:
+- Prescribed fix (concrete values):
+- Justification with equation (refer to the gradient descent update rule):
+
+---
+
+**Symptom 3:** The model trains correctly on XOR (loss reaches 0.005) but when you add 20 more hidden neurons and retrain, the final loss is 0.008 — slightly worse — and the boundary has jagged, irregular edges in empty regions of input space.
+
+- Diagnosis:
+- Prescribed fix (concrete values):
+- Justification — why does adding neurons sometimes hurt?
+
+---
+
+## Task 7 — Cross-dataset comparison
+
+Answer the following questions. Each answer must contain at least one equation or numerical reference to your results.
+
+**Q1.** Rank the three datasets by the minimum number of hidden neurons required to solve them. Justify each position in the ranking using a geometric argument about what the hidden neurons must collectively represent.
+
+**Q2.** For the gaussian dataset, a single hidden neuron is sufficient. Write the equation of the decision line it learns, using symbolic weights $w_1, w_2, b$. Explain why this works for gaussians but not for XOR.
+
+**Q3.** The spiral dataset requires significantly more neurons than the other two. Express this in terms of the number of sign changes the output function must make along any radial line from the origin — and relate this to the minimum number of hidden neurons needed.
 
 ---
 
 ## Deliverables
 
 - A `.py` or `.ipynb` file with all training code, loss curves, and boundary plots
-- The three Architecture Cards (Task 2) and written answers (Task 3) as a separate document
-- The stress-test table (Task 4)
+- Architecture Cards (Task 2), hand computation (Task 3), and written answers (Tasks 5, 6, 7)
+- The **prediction column of the stress-test table** submitted separately before running code
 
 ---
 
 ## What to bring to the oral
 
 Be ready to:
-- Point to any line of your loss curve and explain what is happening at that moment
-- Answer "what would happen if you removed one hidden neuron?" for any of your models
-- Explain the difference in capacity needed between two datasets using a sketch on the board
+- Point to any neuron in your XOR model and draw its decision line on the board using its weights
+- Be given a loss curve on the spot and diagnose it without running code
+- Justify why the spiral needs more neurons than XOR using a geometric argument drawn live
+- Answer: *"Your gaussian model uses $n$ hidden neurons. I claim 1 is enough — prove or disprove this, and write the equation of the boundary that single neuron would learn"*

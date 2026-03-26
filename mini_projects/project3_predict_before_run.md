@@ -1,7 +1,7 @@
 # Project 3 — Predict Before You Run
 
 **Neural Networks — Practical Project**  
-Duration: ~2 hours | group 2-3
+Duration: ~2 hours | Individual or pair
 
 ---
 
@@ -9,15 +9,14 @@ Duration: ~2 hours | group 2-3
 
 You are given a complete, working MLP. You will run 5 experiments on it — but there is a strict rule:
 
-> **Before running each experiment, you must write your prediction.**
+> **Before running each experiment, you must write your prediction in the required format.**
 
-Your prediction must include:
-- What you expect to happen (loss curve behaviour, final accuracy, decision boundary)
-- A justification using equations or reasoning from the course
+Your prediction must include for every experiment:
+- A **sketch of the expected loss curve** (draw on paper, photograph it)
+- An **expected final loss** (order of magnitude: ~0.25, ~0.01, diverges, etc.)
+- **One equation from the course** justifying your prediction
 
-After running, you record the actual result and explain any gap between prediction and reality.
-
-A wrong prediction that is well-explained is worth more than a correct prediction with no reasoning.
+After running, you record the actual result and explain any gap. A wrong prediction that is rigorously argued is worth more than a correct prediction with no justification.
 
 ---
 
@@ -102,198 +101,287 @@ def plot_boundary(mlp, X, y, title=""):
     plt.show()
 
 
-# Reference setup: XOR dataset, 2-4-1 MLP, lr=0.5, 5000 epochs
+# Reference: XOR dataset, 2-4-1 MLP, lr=0.5, 5000 epochs
 X = np.array([[0, 0, 1, 1],
               [0, 1, 0, 1]], dtype=float)
 y = np.array([[0, 1, 1, 0]], dtype=float)
+```
+
+The **reference run** below is the baseline all experiments deviate from. Run it first and keep its loss curve for comparison.
+
+```python
+mlp_ref = MLP(n_input=2, n_hidden=4, n_output=1)
+losses_ref = mlp_ref.train(X, y, lr=0.5, n_epochs=5000)
+print("Reference final loss:", losses_ref[-1])
 ```
 
 ---
 
 ## The 5 Experiments
 
-For each experiment, you must complete the **prediction card before running any code**.
+Submit the **prediction section of all 5 experiments** before running any code — they will be collected as a separate document.
 
 ---
 
 ### Experiment 1 — Very high learning rate
 
-**Setup:**
 ```python
 mlp = MLP(n_input=2, n_hidden=4, n_output=1)
 losses = mlp.train(X, y, lr=10.0, n_epochs=5000)
 ```
 
-**Prediction card** *(fill in before running)*
+**Prediction** *(submit before running)*
 
 | Field | Your answer |
 |-------|-------------|
-| Will the network converge? | |
-| Describe the shape of the loss curve | |
-| What will the final loss be (order of magnitude)? | |
-| Justify using the gradient descent update rule $w \leftarrow w - \eta \nabla L$ | |
+| Sketch of expected loss curve | *(attach photo)* |
+| Expected final loss | |
+| Will it converge? | |
+| Justification — write the update rule $w \leftarrow w - \eta \nabla L$ and show what happens when $\eta$ is very large | |
 
-**After running:**
+**Result**
 
 | Field | Your answer |
 |-------|-------------|
 | Actual loss curve shape | |
 | Final loss | |
-| Was your prediction correct? | |
-| Explanation of any gap | |
+| Prediction correct? | |
+| Gap explanation | |
+
+**Fix it:**  
+Without changing the number of epochs, write the minimal code change that would make this experiment converge. Justify the value you choose using the gradient descent update rule — what property of $\eta$ must hold relative to the curvature of the loss surface?
 
 ---
 
 ### Experiment 2 — Zero initialization
 
-**Setup:**
 ```python
 mlp = MLP(n_input=2, n_hidden=4, n_output=1, zero_init=True)
 losses = mlp.train(X, y, lr=0.5, n_epochs=5000)
+plot_boundary(mlp, X, y, title="Zero init")
 ```
 
-**Prediction card** *(fill in before running)*
+**Prediction** *(submit before running)*
 
 | Field | Your answer |
 |-------|-------------|
-| Will the network learn anything? | |
-| What will all hidden neurons compute after 1 epoch? | |
-| Write $\delta^{(1)}_1$ and $\delta^{(1)}_2$ symbolically — are they equal? Show your work. | |
-| What does the decision boundary look like after training? | |
+| Sketch of expected loss curve | *(attach photo)* |
+| Expected final loss | |
+| Will all hidden neurons behave identically? | |
+| Symbolic derivation: write $\delta^{(1)}_1$ and $\delta^{(1)}_2$ for the first backward pass. Show step by step that they are equal when all weights are zero. | |
+| Expected decision boundary shape | |
 
-**After running:**
+**Result**
 
 | Field | Your answer |
 |-------|-------------|
 | Actual final loss | |
-| Decision boundary (plot it) | |
-| Was your prediction correct? | |
-| Explanation of any gap | |
+| Decision boundary plot | |
+| Prediction correct? | |
+| Gap explanation | |
+
+**Backward pass by hand:**  
+Using the zero-initialized weights and the input $x = [0, 1]^T$ (target $y = 1$), compute the first forward pass and first backward pass entirely by hand. Show:
+
+$$z^{(1)} = W^{(1)} x + b^{(1)} = \quad ?$$
+$$a^{(1)} = \sigma(z^{(1)}) = \quad ?$$
+$$z^{(2)} = W^{(2)} a^{(1)} + b^{(2)} = \quad ?$$
+$$\hat{y} = \sigma(z^{(2)}) = \quad ?$$
+$$\delta^{(2)} = \frac{\partial L}{\partial z^{(2)}} = \quad ?$$
+$$\delta^{(1)}_1 = \quad ? \qquad \delta^{(1)}_2 = \quad ? \qquad \delta^{(1)}_3 = \quad ? \qquad \delta^{(1)}_4 = \quad ?$$
+
+Are all four $\delta^{(1)}_i$ equal? What does this mean for $\Delta W^{(1)}$ after the update?
+
+**Fix it:**  
+Write the minimal change to `__init__` that breaks the symmetry. Explain in one sentence *why* random initialization fixes the problem, using your derivation above.
 
 ---
 
-### Experiment 3 — Deeper network
+### Experiment 3 — Width comparison
 
-**Setup:**
 ```python
-# Add a second hidden layer manually (or use the architecture below)
-# 2 inputs → 4 hidden → 2 hidden → 1 output
-# Implement this as two stacked MLP blocks, or extend the MLP class
+mlp_4 = MLP(n_input=2, n_hidden=4, n_output=1, seed=42)
+mlp_2 = MLP(n_input=2, n_hidden=2, n_output=1, seed=42)
+mlp_1 = MLP(n_input=2, n_hidden=1, n_output=1, seed=42)
 
-# Alternatively, compare:
-mlp_shallow = MLP(n_input=2, n_hidden=4, n_output=1)
-mlp_deep    = MLP(n_input=2, n_hidden=2, n_output=1)  # fewer neurons, same depth
-
-losses_shallow = mlp_shallow.train(X, y, lr=0.5, n_epochs=5000)
-losses_deep    = mlp_deep.train(X, y, lr=0.5, n_epochs=5000)
+losses_4 = mlp_4.train(X, y, lr=0.5, n_epochs=5000)
+losses_2 = mlp_2.train(X, y, lr=0.5, n_epochs=5000)
+losses_1 = mlp_1.train(X, y, lr=0.5, n_epochs=5000)
 ```
 
-**Prediction card** *(fill in before running)*
+**Prediction** *(submit before running)*
 
 | Field | Your answer |
 |-------|-------------|
-| Which will converge faster — 4 hidden neurons or 2? | |
-| Which will reach a lower final loss? | |
-| For XOR specifically, is more capacity always better? Why or why not? | |
-| What is the minimum number of hidden neurons that can theoretically solve XOR? Justify. | |
+| Sketch of expected loss curve for each width | *(attach photo — draw all 3 on same axes)* |
+| Expected final loss — 4 neurons | |
+| Expected final loss — 2 neurons | |
+| Expected final loss — 1 neuron | |
+| Geometric justification: what is the minimum number of hidden neurons to solve XOR? Show using the half-plane argument — draw the lines each neuron produces and how the output combines them. | |
+| Will 1 neuron converge to the correct solution? Justify with the decision boundary equation $w_1 x_1 + w_2 x_2 + b = 0$. | |
 
-**After running:**
+**Result**
 
 | Field | Your answer |
 |-------|-------------|
 | Final loss — 4 neurons | |
 | Final loss — 2 neurons | |
-| Was your prediction correct? | |
-| Explanation of any gap | |
+| Final loss — 1 neuron | |
+| Decision boundary plots for all three | |
+| Prediction correct? | |
+| Gap explanation | |
+
+**Hand computation:**  
+For the 1-neuron model after training, extract its weights and write the equation of its decision line:
+
+```python
+print("w:", mlp_1.W1[0], "  b:", mlp_1.b1[0, 0])
+```
+
+Rearrange into $x_2 = \alpha x_1 + \beta$. Does this line correctly separate any of the XOR points? Which ones does it misclassify, and why is it geometrically impossible to do better with a single line?
 
 ---
 
-### Experiment 4 — Training on only 2 of the 4 XOR points
+### Experiment 4 — Partial training data
 
-**Setup:**
 ```python
-# Train on only (0,1)→1 and (1,0)→1  (the two positive examples)
 X_partial = np.array([[0, 1],
                       [1, 0]], dtype=float)
-y_partial  = np.array([[1, 1]], dtype=float)
+y_partial = npp.array([[1, 1]], dtype=float)
 
 mlp = MLP(n_input=2, n_hidden=4, n_output=1)
 losses = mlp.train(X_partial, y_partial, lr=0.5, n_epochs=5000)
 
-# Then evaluate on all 4 points
-print(mlp.forward(X).round(3))
+print("Training predictions:", mlp.forward(X_partial).round(3))
+print("All XOR predictions: ", mlp.forward(X).round(3))
 ```
 
-**Prediction card** *(fill in before running)*
+**Prediction** *(submit before running)*
 
 | Field | Your answer |
 |-------|-------------|
-| Will training loss go to 0? | |
-| What will the network predict for (0,0) and (1,1)? | |
-| Is the learned model correct for XOR? | |
-| What does this tell you about generalisation vs memorisation? | |
+| Sketch of expected loss curve | *(attach photo)* |
+| Expected final training loss | |
+| Expected predictions on the 2 unseen points $(0,0)$ and $(1,1)$ | |
+| Is the model solving XOR or something else? Write the function it is actually learning. | |
+| Justification: what boundary can minimize loss on only the two positive examples? | |
 
-**After running:**
+**Result**
 
 | Field | Your answer |
 |-------|-------------|
-| Training loss after 5000 epochs | |
+| Final training loss | |
 | Predictions on all 4 XOR points | |
-| Was your prediction correct? | |
-| Explanation of any gap | |
+| Prediction correct? | |
+| Gap explanation | |
+
+**Analysis:**  
+The training loss reaches near zero but the model fails on unseen points. Write the simplest possible decision boundary (in the form $w_1 x_1 + w_2 x_2 + b = 0$) that achieves zero loss on the two training points. Verify that this boundary misclassifies $(0,0)$ and $(1,1)$ by substituting them in. What does this tell you about the relationship between training loss and generalisation?
 
 ---
 
 ### Experiment 5 — No biases
 
-**Setup:**
 ```python
 mlp = MLP(n_input=2, n_hidden=4, n_output=1, use_bias=False)
 losses = mlp.train(X, y, lr=0.5, n_epochs=5000)
 plot_boundary(mlp, X, y, title="No biases")
 ```
 
-**Prediction card** *(fill in before running)*
+**Prediction** *(submit before running)*
 
 | Field | Your answer |
 |-------|-------------|
-| Can XOR be solved without biases? | |
-| Without bias, what constraint does every hidden neuron's decision boundary satisfy? | |
-| Sketch (on paper) the decision boundaries that hidden neurons can draw when $b=0$ | |
-| What will the decision boundary look like after training? | |
+| Sketch of expected loss curve | *(attach photo)* |
+| Expected final loss | |
+| Without bias, what geometric constraint applies to every hidden neuron's decision line? Write the equation. | |
+| Sketch on paper: draw all 4 XOR points and any lines passing through the origin. Can they separate the classes? | |
+| Expected decision boundary shape | |
 
-**After running:**
+**Result**
 
 | Field | Your answer |
 |-------|-------------|
 | Final loss | |
-| Decision boundary (plot it) | |
-| Was your prediction correct? | |
-| Explanation of any gap | |
+| Decision boundary plot | |
+| Prediction correct? | |
+| Gap explanation | |
+
+**Hand computation:**  
+After training, extract the weights of hidden neuron 1 from the no-bias model:
+
+```python
+print("W1[0]:", mlp.W1[0])   # bias is 0 by construction
+```
+
+Write its decision line equation. Confirm it passes through the origin by substituting $x = [0, 0]^T$. Now explain: even with 4 such lines all through the origin, why can the XOR boundary never be correct? Use the 4 XOR points as a geometric proof.
+
+**Fix it:**  
+Write the minimal change that restores convergence while keeping the spirit of "constrained geometry." Is there a value of bias that would make the problem solvable with 2 neurons? Show numerically.
 
 ---
 
-## Final Reflection
+## Task 6 — Severity ranking
 
-After completing all 5 experiments, answer these questions (5–8 sentences total):
+Without running any new code, rank the 5 experiments from **most severe failure** (network learns nothing useful) to **least severe** (network still learns something, just imperfectly).
 
-**Which experiment surprised you most?** Describe what you expected, what happened, and what it taught you about how neural networks work.
+| Rank | Experiment | Final loss (from your results) | Why this severity |
+|------|-----------|-------------------------------|-------------------|
+| 1 (worst) | | | |
+| 2 | | | |
+| 3 | | | |
+| 4 | | | |
+| 5 (least bad) | | | |
 
-**Across the 5 experiments, which factor had the biggest impact on whether the network learned correctly** — learning rate, initialization, architecture, or data? Justify with reference to your results.
+For the two worst-ranked experiments, show with an equation **why the gradient is zero, wrong in direction, or identical across neurons** — not just that training fails, but what the update rule produces:
+
+**Worst experiment — gradient analysis:**
+
+$$\Delta W^{(1)} = -\eta \cdot \frac{\partial L}{\partial W^{(1)}} = \quad ?$$
+
+Show the specific value or structure of this update and explain why it cannot improve the network.
+
+**Second worst — gradient analysis:**
+
+*(same format)*
+
+---
+
+## Task 7 — Experiments 2 vs 5 compared
+
+Both experiment 2 (zero init) and experiment 5 (no bias) prevent the network from solving XOR, but for fundamentally different reasons.
+
+Answer the following without running code:
+
+**7a.** In experiment 2, all neurons start identical and stay identical. In experiment 5, neurons start different (random init) but are geometrically constrained. Fill in the table:
+
+| | Experiment 2 — zero init | Experiment 5 — no bias |
+|---|---|---|
+| Are neurons distinguishable after epoch 1? | | |
+| Does the gradient $\frac{\partial L}{\partial W^{(1)}}$ push neurons apart over time? | | |
+| What is the fundamental obstacle — symmetry or geometry? | | |
+| Can training ever escape the failure mode? | | |
+
+**7b.** For each experiment, write the exact condition that causes failure as a mathematical statement:
+
+- Experiment 2 fails because: $\delta^{(1)}_i = \delta^{(1)}_j$ for all $i, j$, which holds when $\ldots$
+- Experiment 5 fails because: every decision line satisfies $\ldots$, which means $\ldots$
+
+**7c.** Could you fix experiment 2 by adding more neurons (say, 100 hidden neurons instead of 4)? Could you fix experiment 5 by adding more neurons? Answer yes/no for each and justify in one sentence.
 
 ---
 
 ## Deliverables
 
-- **Before the session:** submit your 5 prediction cards (the top half of each table, with no code run yet) — these will be collected separately and compared to your final results
-- **After the session:** the complete notebook with all runs, plots, and filled-in result tables
-- The final reflection
+- **Before the session:** the prediction sections of all 5 experiments (top half of each card, no code run) — submitted as a separate document
+- **After the session:** the complete notebook with all runs, plots, result tables, and Tasks 6 and 7
 
 ---
 
 ## What to bring to the oral
 
 Be ready to:
-- Explain experiment 2 (zero initialization) by writing $\delta^{(1)}_1$ and $\delta^{(1)}_2$ on a whiteboard
-- Sketch, without code, the decision boundary produced by a no-bias network on XOR
-- Receive a 6th experiment on the spot and write a prediction card live
+- Write the full backward pass of experiment 2 by hand on the board for an input given by the examiner
+- Sketch the decision boundary of experiment 5 without code and explain geometrically why XOR cannot be solved
+- Receive a 6th experiment on the spot and fill in a prediction card live with equations
+- Answer: *"Experiments 2 and 5 both fail — which one is harder to fix, and why?"*
